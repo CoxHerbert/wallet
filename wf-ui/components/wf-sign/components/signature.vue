@@ -1,5 +1,11 @@
 <template>
-	<u-popup safe-area-inset-bottom border-radius="25" closeable mode="bottom" v-model="show">
+        <van-popup
+                safe-area-inset-bottom
+                round
+                closeable
+                position="bottom"
+                v-model:show="show"
+        >
 		<div class="container">
 			<div class="title">签名</div>
 			<div class="handCenter" :style="getStyle">
@@ -10,12 +16,11 @@
 				<span class="button button_submit" @click="submit">提交</span>
 			</div>
 		</div>
-		<u-toast ref="uToast" />
-	</u-popup>
+        </van-popup>
 </template>
 
 <script>
-        import { createSelectorQuery, createCanvasContext, canvasToTempFilePath } from '../../../util/uniCompat.js';
+        import { createSelectorQuery, createCanvasContext, canvasToTempFilePath, showToast } from '../../../util/uniCompat.js';
         import Handwriting from './signature.js';
 	export default {
 		data() {
@@ -80,13 +85,14 @@
 			submit() {
 				let self = this;
 
-				if (this.handwriting.isEmpty()) {
-					// 未签字
-					return this.$refs.uToast.show({
-						title: '请在框内签字',
-						type: 'error'
-					});
-				}
+                                if (this.handwriting.isEmpty()) {
+                                        // 未签字
+                                        showToast({
+                                                title: '请在框内签字',
+                                                icon: 'none'
+                                        });
+                                        return;
+                                }
 
                                 canvasToTempFilePath({
                                                 canvasId: this.canvasId,

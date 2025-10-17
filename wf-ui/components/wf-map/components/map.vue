@@ -14,7 +14,7 @@
                         <img class="cover-image" :src="require('../images/location.png')" />
                         <img :src="require('../images/current.png')" class="current-img" @click="currentLocation" />
                 </map>
-                <div class="search"><u-search v-model="searchValue" :show-action="false" @change="onSearch"></u-search></div>
+                <div class="search"><van-search v-model="searchValue" :show-action="false" @change="onSearch"></van-search></div>
 		<div class="list">
 			<div class="list-item" v-for="(item, index) in list" :key="index" @click="onSelect(index)">
 				<label class="l">
@@ -26,16 +26,16 @@
 				</radio-group>
 			</div>
 		</div>
-		<div class="button safe-area-inset-bottom">
-                        <u-button
-                                :custom-style="{ width: '320rpx' }"
-                                type="primary" size="medium" @click="onSubmit" > 确定
-			</u-button>
-                        <u-button
-                                :custom-style="{ width: '320rpx' }"
-                                type="error" size="medium" @click="onCancel" > 清空
-			</u-button>
-		</div>
+                <div class="button safe-area-inset-bottom">
+                        <van-button
+                                :style="{ width: '320rpx' }"
+                                type="primary" size="large" @click="onSubmit" > 确定
+                        </van-button>
+                        <van-button
+                                :style="{ width: '320rpx' }"
+                                type="danger" size="large" @click="onCancel" > 清空
+                        </van-button>
+                </div>
 	</div>
 </template>
 
@@ -308,11 +308,11 @@ export default {
 		align-items: center;
 		justify-content: space-around;
 
-		::v-deep.u-btn {
-			width: 100%;
-			padding: 0;
-			margin: 0 10rpx;
-		}
+                ::v-deep .van-button {
+                        width: 100%;
+                        padding: 0;
+                        margin: 0 10rpx;
+                }
 	}
 }
 </style>

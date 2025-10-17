@@ -97,33 +97,33 @@
 				</div>
 				<div class="wf-bg-month">{{ month }}</div>
 				<div v-if="(type == 3 && (activeDate || startDate)) || (type == 4 && endDate)" class="wf-date-time">
-					<div class="wf-date-time__start" @click="handleTimeShow('startTime')">
-						<u-field
-							v-model="startTime"
-							:style="{ fontSize: type == 3 ? '' : '20rpx' }"
-							:label="activeDate || startDate"
-							:label-width="type == 3 ? 180 : 160"
-							input-align="center"
-							placeholder-style="font-size: 20rpx;"
-							:placeholder="type == 3 ? '时间' : '开始时间'"
-						></u-field>
-					</div>
-					
-					<template v-if="endDate">
-						至
-						<div class="wf-date-time__end" @click="handleTimeShow('endTime')">
-							<u-field
-								v-model="endTime"
-								:style="{ fontSize: '20rpx' }"
-								:label="endDate"
-								:label-width="160"
-								input-align="center"
-								placeholder-style="font-size: 20rpx;"
-								placeholder="结束时间"
-							></u-field>
-						</div>
-					</template>
-				</div>
+                                        <div class="wf-date-time__start" @click="handleTimeShow('startTime')">
+                                                <van-field
+                                                        v-model="startTime"
+                                                        :style="{ fontSize: type == 3 ? '' : '20rpx' }"
+                                                        :label="activeDate || startDate"
+                                                        :label-width="formatLabelWidth(type == 3 ? 180 : 160)"
+                                                        input-align="center"
+                                                        :placeholder="type == 3 ? '时间' : '开始时间'"
+                                                        readonly
+                                                ></van-field>
+                                        </div>
+
+                                        <template v-if="endDate">
+                                                至
+                                                <div class="wf-date-time__end" @click="handleTimeShow('endTime')">
+                                                        <van-field
+                                                                v-model="endTime"
+                                                                :style="{ fontSize: '20rpx' }"
+                                                                :label="endDate"
+                                                                :label-width="formatLabelWidth(160)"
+                                                                input-align="center"
+                                                                placeholder="结束时间"
+                                                                readonly
+                                                        ></van-field>
+                                                </div>
+                                        </template>
+                                </div>
 			</div>
 
 			<div class="wf-calendar-op" v-if="isFixed" @touchmove.stop.prevent="stop">
@@ -132,24 +132,24 @@
 					<span v-if="endDate">至 {{ endDate }}</span>
 				</div>
 				<div class="wf-calendar-btn_box">
-					<u-button
-						:custom-style="{ width: '49%', float: 'left', marginRight: '2%' }"
-						type="error"
-						shape="circle"
-						size="medium"
-						@click="handleClear"
-					>
-						清空
-					</u-button>
-					<u-button
-						:custom-style="{ width: '49%', float: 'left' }"
-						:type="btnType"
-						shape="circle"
-						size="medium"
-						@click="btnFix(false)"
-					>
-						确定
-					</u-button>
+                                        <van-button
+                                                :style="{ width: '49%', float: 'left', marginRight: '2%' }"
+                                                type="danger"
+                                                round
+                                                size="small"
+                                                @click="handleClear"
+                                        >
+                                                清空
+                                        </van-button>
+                                        <van-button
+                                                :style="{ width: '49%', float: 'left' }"
+                                                :type="btnType"
+                                                round
+                                                size="small"
+                                                @click="btnFix(false)"
+                                        >
+                                                确定
+                                        </van-button>
 				</div>
 			</div>
 		</div>
@@ -162,15 +162,18 @@
 			@click="hide"
 		></div>
 
-		<u-picker
-			mode="time"
-			v-model="showTime"
-			:default-time="defaultTime"
-			cancel-text="清空"
-			:params="{ year: false, month: false, day: false, hour: true, minute: true, second: true }"
-			@confirm="handleTimeConfirm"
-			@cancel="handleTimeCancel"
-		></u-picker>
+                <van-popup v-model:show="showTime" position="bottom" round>
+                        <van-picker
+                                show-toolbar
+                                title="选择时间"
+                                :columns="timeColumns"
+                                :default-indexes="timeDefaultIndexes"
+                                cancel-button-text="清空"
+                                confirm-button-text="确定"
+                                @confirm="handleTimeConfirm"
+                                @cancel="handleTimeCancel"
+                        />
+                </van-popup>
 	</div>
 </template>
 <script>
@@ -350,15 +353,24 @@ export default {
 			showTime: false,
 			startTime: '',
 			endTime: '',
-			defaultTime: '',
-			timeType: ''
-		}
-	},
-	computed: {
-		dataChange() {
-			return `${this.type}-${this.minDate}-${this.maxDate}-${this.initStartDate}-${this.initEndDate}`
-		}
-	},
+                        timeDefaultIndexes: [0, 0, 0],
+                        timeType: ''
+                }
+        },
+        computed: {
+                dataChange() {
+                        return `${this.type}-${this.minDate}-${this.maxDate}-${this.initStartDate}-${this.initEndDate}`
+                },
+                timeColumns() {
+                        const pad = (num) => `${num}`.padStart(2, '0')
+                        const createRange = (count) => Array.from({ length: count }, (_, index) => pad(index))
+                        return [
+                                { values: createRange(24) },
+                                { values: createRange(60) },
+                                { values: createRange(60) }
+                        ]
+                }
+        },
 	watch: {
 		dataChange(val) {
 			this.init()
@@ -372,8 +384,14 @@ export default {
 	created() {
 		this.init()
 	},
-	methods: {
-		handleClear() {
+        methods: {
+                formatLabelWidth(width) {
+                        if (typeof width === 'number') {
+                                return `${width / 2}px`
+                        }
+                        return width
+                },
+                handleClear() {
 			this.$emit('clear')
 			this.hide()
 
@@ -399,17 +417,28 @@ export default {
 			this.endTime = ''
 			this.changeData()
 		},
-		handleTimeShow(type) {
-			this.timeType = type
-			if (this[this.timeType]) this.defaultTime = this[this.timeType]
-			this.showTime = true
-		},
-                handleTimeConfirm(value) {
-                        const { hour, minute, second } = value
+                handleTimeShow(type) {
+                        this.timeType = type
+                        if (this[this.timeType]) {
+                                this.timeDefaultIndexes = this.parseTimeToIndexes(this[this.timeType])
+                        } else {
+                                this.timeDefaultIndexes = [0, 0, 0]
+                        }
+                        this.showTime = true
+                },
+                handleTimeConfirm({ selectedValues }) {
+                        const [hour = '00', minute = '00', second = '00'] = selectedValues || []
                         this[this.timeType] = `${hour}:${minute}:${second}`
+                        this.showTime = false
                 },
                 handleTimeCancel() {
                         this[this.timeType] = ''
+                        this.showTime = false
+                },
+                parseTimeToIndexes(value) {
+                        const parts = (value || '').split(':').map((item) => parseInt(item, 10) || 0)
+                        const [hour = 0, minute = 0, second = 0] = parts
+                        return [hour, minute, second]
                 },
 		getColor(index, type) {
 			let color = [1, 3].includes(type) ? '' : this.color

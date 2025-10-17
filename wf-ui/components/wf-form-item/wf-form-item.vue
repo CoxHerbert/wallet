@@ -1,13 +1,15 @@
 <template>
     <div class="wf-form-item">
-        <u-form-item
+        <van-field
+            v-model="text"
             :label="column.label ? column.label + '：' : ''"
-            :prop="column.prop"
-            :label-width="column.labelWidth || labelWidth || 180"
-            :label-position="column.type == 'dynamic' ? 'top' : 'left'"
+            :name="column.prop"
+            :rules="column.rules || []"
             :required="!validateNull(column.rules)"
+            :label-width="getLabelWidth(column)"
             class="wf-form-item-label"
-        >   
+        >
+            <template #input>
         
             <!-- <component :is="getComponent(item)" v-bind="Object.assign(item)"></component> -->
             <wf-input
@@ -187,7 +189,8 @@
                     </wf-user-select> -->
             </template>
             <WfFeasibility v-if="column.component === 'wf-feasibility'" v-model="text"> </WfFeasibility>
-        </u-form-item>
+            </template>
+        </van-field>
     </div>
 </template>
 
@@ -277,6 +280,13 @@ export default {
         return { text: undefined, init: false, DATE_LIST };
     },
     methods: {
+        getLabelWidth(column) {
+            const width = column.labelWidth || this.labelWidth || 180;
+            if (typeof width === 'number') {
+                return `${width / 2}px`;
+            }
+            return width;
+        },
         isUser(column) {
             return column?.children?.props?.url === '/blade-system/search/user'
         },

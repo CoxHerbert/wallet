@@ -32,8 +32,8 @@
             v-if="item[childrenKey] || item[hasChildrenKey]"
             @click="handleRowExpand(item, index)"
         >
-            <u-icon name="arrow-up" v-if="arrowKeys.includes(item[valueKey])"></u-icon>
-            <u-icon name="arrow-down" v-else></u-icon>
+            <van-icon name="arrow-up" v-if="arrowKeys.includes(item[valueKey])"></van-icon>
+            <van-icon name="arrow-down" v-else></van-icon>
         </div>
     </div>
 </template>

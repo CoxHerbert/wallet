@@ -1,14 +1,15 @@
 <template>
 	<div class="wf-cascader">
-		<u-input
-			v-model="textLabel"
-			type="select"
-			:placeholder="getPlaceholder(column, column.type)"
-			@click="onClick"
-		/>
-		<u-popup v-model="show" mode="bottom" close-icon="close-circle" closeable>
-			<cascader :props="column.props" :itemList="dic" :title="column.label" @complete="onConfirm"></cascader>
-		</u-popup>
+                <van-field
+                        v-model="textLabel"
+                        is-link
+                        readonly
+                        :placeholder="getPlaceholder(column, column.type)"
+                        @click="onClick"
+                />
+                <van-popup v-model:show="show" position="bottom" close-icon="cross" closeable>
+                        <cascader :props="column.props" :itemList="dic" :title="column.label" @complete="onConfirm"></cascader>
+                </van-popup>
 	</div>
 </template>
 
@@ -54,8 +55,8 @@ export default {
 .wf-cascader {
 	width: 100%;
 
-	::v-deep.u-close--top-right {
-		top: 20rpx;
-	}
+        ::v-deep .van-popup__close-icon--top-right {
+                top: 20rpx;
+        }
 }
 </style>

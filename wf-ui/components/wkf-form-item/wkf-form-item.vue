@@ -1,12 +1,14 @@
 <template>
     <div class="wf-form-item">
-        <u-form-item
+        <van-field
+            v-model="text"
             :label="column.label ? column.label + '：' : ''"
-            :prop="column.prop"
-            :label-width="column.labelWidth || labelWidth || 180"
-            :label-position="column.type == 'dynamic' ? 'top' : column.labelPosition || labelPosition || 'left'"
+            :name="column.prop"
+            :rules="column.rules || []"
             :required="!validateNull(column.rules)"
+            :label-width="getLabelWidth(column)"
         >
+            <template #input>
             <!-- <component :is="getComponent(item)" v-bind="Object.assign(item)"></component> -->
             <wf-input
                 v-if="[undefined, 'input', 'password', 'textarea', 'number'].includes(column.type) && !column.component"
@@ -122,7 +124,8 @@
                 :disabled="disabled"
                 :dynamic-index="dynamicIndex"
             ></component>
-        </u-form-item>
+            </template>
+        </van-field>
     </div>
 </template>
 
@@ -194,6 +197,13 @@ export default {
         return { text: undefined, init: false, DATE_LIST };
     },
     methods: {
+        getLabelWidth(column) {
+            const width = column.labelWidth || this.labelWidth || 180;
+            if (typeof width === 'number') {
+                return `${width / 2}px`;
+            }
+            return width;
+        },
         handleLabelChange(val) {
             this.$emit('label-change', { prop: this.column.prop, value: val, index: this.dynamicIndex });
         },

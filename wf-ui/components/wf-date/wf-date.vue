@@ -2,16 +2,17 @@
 	<div class="wf-date">
 		<template v-if="[1, 2, 3, 4].includes(type)">
 			<div class="wf-date__field" @click="handleShowSelect">
-				<u-field
-					v-model="date"
-					:label-width="0"
-					:border-bottom="false"
-					:placeholder="getPlaceholder(column)"
-				>
-					<template #icon>
-						<u-icon name="calendar" color="rgb(192, 196, 204)" size="26"></u-icon>
-					</template>
-				</u-field>
+                                <van-field
+                                        v-model="date"
+                                        :label-width="0"
+                                        :border="false"
+                                        :placeholder="getPlaceholder(column)"
+                                        readonly
+                                >
+                                        <template #left-icon>
+                                                <van-icon name="calendar-o" color="rgb(192, 196, 204)" size="26"></van-icon>
+                                        </template>
+                                </van-field>
 			</div>
 			<calendar
 				ref="calendar"
@@ -30,49 +31,50 @@
 		<template v-if="[5, 6].includes(type)">
 			<div class="wf-date-time">
 				<div class="wf-date-time__start" @click="handleShowSelect('initStartDate')">
-					<u-field
-						v-model="initStartDate"
-						:style="{ padding: '0' }"
-						label-width="0"
-						:border-bottom="false"
-						:placeholder="type == 5 ? getPlaceholder(column) : column.startPlaceholder || '开始时间'"
-						:placeholder-style="type == 5 ? 'text-align: left' : 'text-align: center'"
-						:input-align="type == 5 ? 'left' : 'center'"
-					>
-						<template #icon>
-							<u-icon name="clock" color="rgb(192, 196, 204)" size="26"></u-icon>
-						</template>
-					</u-field>
+                                        <van-field
+                                                v-model="initStartDate"
+                                                :style="{ padding: '0' }"
+                                                :label-width="0"
+                                                :border="false"
+                                                :placeholder="type == 5 ? getPlaceholder(column) : column.startPlaceholder || '开始时间'"
+                                                :input-align="type == 5 ? 'left' : 'center'"
+                                                readonly
+                                        >
+                                                <template #left-icon>
+                                                        <van-icon name="clock-o" color="rgb(192, 196, 204)" size="26"></van-icon>
+                                                </template>
+                                        </van-field>
 				</div>
 				
 				<template v-if="type == 6">
 					至
 					<div class="wf-date-time__end" @click="handleShowSelect('initStartDate')">
-						<u-field
-							v-model="initEndDate"
-							:style="{ padding: '0' }"
-							label-width="0"
-							:border-bottom="false"
-							:placeholder="column.endPlaceholder || '结束时间'"
-							placeholder-style="text-align: center;"
-							:input-align="type == 5 ? 'left' : 'center'"
-						></u-field>
+                                                <van-field
+                                                        v-model="initEndDate"
+                                                        :style="{ padding: '0' }"
+                                                        :label-width="0"
+                                                        :border="false"
+                                                        :placeholder="column.endPlaceholder || '结束时间'"
+                                                        :input-align="type == 5 ? 'left' : 'center'"
+                                                        readonly
+                                                ></van-field>
 					</div>
 				</template>
 			</div>
-			<u-picker
-				v-model="showTime"
-				mode="time"
-				:title="type == 5 ? '时间' : timeType == 'initStartDate' ? '开始时间' : '结束时间'"
-				cancel-text="清空"
-				:default-time="defaultTime"
-				:params="{ year: false, month: false, day: false, hour: true, minute: true, second: true }"
-				:mask-close-able="type == 5 ? true : timeType == 'initStartDate' ? true : false"
-				@confirm="onConfirm"
-				@cancel="onClear"
-			></u-picker>
-		</template>
-	</div>
+                        <van-popup v-model:show="showTime" position="bottom" round>
+                                <van-picker
+                                        show-toolbar
+                                        :title="type == 5 ? '时间' : timeType == 'initStartDate' ? '开始时间' : '结束时间'"
+                                        :columns="timeColumns"
+                                        :default-indexes="timeDefaultIndexes"
+                                        cancel-button-text="清空"
+                                        confirm-button-text="确定"
+                                        @confirm="onConfirm"
+                                        @cancel="handlePickerCancel"
+                                />
+                        </van-popup>
+                </template>
+        </div>
 </template>
 
 <script>
@@ -102,30 +104,39 @@ export default {
 					return 6
 			}
 		},
-		valueFormat() {
-			switch (this.column.type) {
-				case 'date':
-				case 'daterange':
-					return 'yyyy-MM-dd'
-				case 'datetime':
-				case 'datetimerange':
-					return 'yyyy-MM-dd HH:mm:ss'
-				case 'time':
-				case 'timerange':
-					return 'HH:mm:ss'
-			}
-		}
-	},
+                valueFormat() {
+                        switch (this.column.type) {
+                                case 'date':
+                                case 'daterange':
+                                        return 'yyyy-MM-dd'
+                                case 'datetime':
+                                case 'datetimerange':
+                                        return 'yyyy-MM-dd HH:mm:ss'
+                                case 'time':
+                                case 'timerange':
+                                        return 'HH:mm:ss'
+                        }
+                },
+                timeColumns() {
+                        const pad = (num) => `${num}`.padStart(2, '0')
+                        const createRange = (count) => Array.from({ length: count }, (_, index) => pad(index))
+                        return [
+                                { values: createRange(24) },
+                                { values: createRange(60) },
+                                { values: createRange(60) }
+                        ]
+                }
+        },
 	data() {
-		return {
-			date: '',
-			initStartDate: '',
-			initEndDate: '',
-			showTime: false,
-			timeType: '',
-			defaultTime: ''
-		}
-	},
+                return {
+                        date: '',
+                        initStartDate: '',
+                        initEndDate: '',
+                        showTime: false,
+                        timeType: '',
+                        timeDefaultIndexes: [0, 0, 0]
+                }
+        },
 	methods: {
 		initValue() {
 			const initVal = this.text ? (this.text + '').split(',') : []
@@ -141,16 +152,16 @@ export default {
 				this.initEndDate = ''
 			}
 		},
-		handleShowSelect(type) {
-			if (this.disabled) return
-			if ([1, 2, 3, 4].includes(this.type)) this.$refs.calendar.show()
-			else {
-				this.timeType = type
-				this.defaultTime = this[type]
-				this.showTime = true
-			}
-			this.handleClick()
-		},
+                handleShowSelect(type) {
+                        if (this.disabled) return
+                        if ([1, 2, 3, 4].includes(this.type)) this.$refs.calendar.show()
+                        else {
+                                this.timeType = type
+                                this.timeDefaultIndexes = this.parseTimeToIndexes(this[type])
+                                this.showTime = true
+                        }
+                        this.handleClick()
+                },
 		formatTime(val) {
 			if ([5, 6].includes(this.type)) return '2008-08-08 ' + val
 			else return val
@@ -159,30 +170,40 @@ export default {
 			const { result } = val
 			if (result) this.text = result
 		},
-		onClear() {
-			if (this.stringMode) this.text = ''
-			else this.text = []
-			if ([5, 6].includes(this.type)) {
-				this.initEndDate = ''
-			}
-			this.initStartDate = ''
-		},
-		onConfirm(value) {
-			const { hour, minute, second } = value
-			const result = `${hour}:${minute}:${second}`
+                onClear() {
+                        this.showTime = false
+                        if (this.stringMode) this.text = ''
+                        else this.text = []
+                        if ([5, 6].includes(this.type)) {
+                                this.initEndDate = ''
+                        }
+                        this.initStartDate = ''
+                },
+                onConfirm({ selectedValues }) {
+                        const [hour = '00', minute = '00', second = '00'] = selectedValues || []
+                        const result = `${hour}:${minute}:${second}`
                         if (this.type == 5) this.text = result
-			else {
-				if (this.timeType == 'initStartDate') {
-					this.initStartDate = result
-					setTimeout(() => {
-						this.handleShowSelect('initEndDate')
-					}, 350)
-				} else {
-					this.text = [this.initStartDate, result]
-				}
-			}
-		}
-	}
+                        else {
+                                if (this.timeType == 'initStartDate') {
+                                        this.initStartDate = result
+                                        setTimeout(() => {
+                                                this.handleShowSelect('initEndDate')
+                                        }, 350)
+                                } else {
+                                        this.text = [this.initStartDate, result]
+                                }
+                        }
+                        this.showTime = false
+                },
+                handlePickerCancel() {
+                        this.onClear()
+                },
+                parseTimeToIndexes(value) {
+                        const parts = (value || '').split(':').map((item) => parseInt(item, 10) || 0)
+                        const [hour = 0, minute = 0, second = 0] = parts
+                        return [hour, minute, second]
+                }
+        }
 }
 </script>
 
@@ -199,9 +220,9 @@ export default {
 	&-time__end {
 		position: relative;
 	
-		.u-field {
-			padding: 20rpx 0;
-		}
+                .van-field {
+                        padding: 20rpx 0;
+                }
 	
 		&::after {
 			position: absolute;

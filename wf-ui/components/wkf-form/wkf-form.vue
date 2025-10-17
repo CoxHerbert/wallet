@@ -1,6 +1,6 @@
 <template>
     <div class="wf-form">
-        <u-form class="wf-form-content" ref="form" :model="form" :error-type="['border-bottom', 'toast']">
+        <van-form class="wf-form-content" ref="form">
             <template v-if="option.column && option.column.length > 0 && formCreate">
                 <template v-for="(item, index) in option.column">
                     <wkf-form-item
@@ -27,14 +27,9 @@
                 </template>
             </template>
             <template v-if="option.group && option.group.length > 0 && formCreate">
-                <u-collapse
-                    :accordion="false"
-                    hover-class="none"
-                    :item-style="{ borderBottom: '1rpx solid #e4e7ed' }"
-                    :head-style="{ padding: '38rpx 0' }"
-                >
+                <van-collapse :accordion="false">
                     <template v-for="(group, gIndex) in option.group">
-                        <u-collapse-item
+                        <van-collapse-item
                             v-if="group.display !== false"
                             :key="gIndex"
                             :disabled="group.arrow === true"
@@ -42,11 +37,11 @@
                         >
                             <template #title>
                                 <span>
-                                    <u-icon
+                                    <van-icon
                                         v-if="group.icon"
                                         :name="group.icon.replace('el-icon-', '')"
                                         style="margin-right: 10rpx"
-                                    ></u-icon>
+                                    ></van-icon>
                                     {{ group.label }}
                                 </span>
                             </template>
@@ -73,11 +68,11 @@
                                     @label-change="handleLabelChange"
                                 ></wkf-form-item>
                             </template>
-                        </u-collapse-item>
+                        </van-collapse-item>
                     </template>
-                </u-collapse>
+                </van-collapse>
             </template>
-        </u-form>
+        </van-form>
         <div
             v-if="
                 ((option.column && option.column.length > 0) || (option.group && option.group.length > 0)) &&
@@ -85,13 +80,18 @@
             "
             class="wf-form-bottom"
         >
-            <u-button
-                :custom-style="{ width: '320rpx' }"
-                v-if="menuBtn.submitBtn" :loading="allDisabled" type="primary" size="medium" @click="submit" >
+            <van-button
+                :style="{ width: '320rpx' }"
+                v-if="menuBtn.submitBtn"
+                :loading="allDisabled"
+                type="primary"
+                size="large"
+                @click="submit"
+            >
                 {{ menuBtn.submitText }}
-            </u-button>
+            </van-button>
             <slot name="menu"></slot>
-            <!-- <u-button v-if="menuBtn.enptyBtn" :loading="allDisabled"  type="info" size="medium" @click="clear">{{ menuBtn.emptyText }}</u-button> -->
+            <!-- <van-button v-if="menuBtn.enptyBtn" :loading="allDisabled" type="info" size="medium" @click="clear">{{ menuBtn.emptyText }}</van-button> -->
         </div>
     </div>
 </template>
@@ -99,7 +99,7 @@
 <script>
 import WkfFormItem from '../wkf-form-item/wkf-form-item.vue';
 import Dic from '../../mixins/dic.js';
-import { formInitVal, initRules } from '../../util/dataformat.js';
+import { formInitVal } from '../../util/dataformat.js';
 import { filter } from '../../util/unsupport.js';
 export default {
     name: 'wkf-form',
@@ -172,7 +172,6 @@ export default {
     data() {
         return {
             form: {},
-            rules: {},
             dic: {},
             formVal: {},
             formCreate: false,
@@ -183,7 +182,6 @@ export default {
         setTimeout(() => {
             this.initDic();
             this.setForm(this.deepClone(Object.assign(formInitVal(this.column).tableForm, this.formVal)));
-            this.$refs.form.setRules(initRules(this.column));
             // #ifdef MP
             this.initFunc();
             // #endif
@@ -229,37 +227,43 @@ export default {
             });
         },
         validateCellForm() {
-            return new Promise((resolve) => {
-                this.$refs.form.validate((valid) => {
-                    resolve(valid);
-                });
-            });
+            if (!this.$refs.form || !this.$refs.form.validate) {
+                return Promise.resolve(true);
+            }
+            return this.$refs.form
+                .validate()
+                .then(() => true)
+                .catch(() => false);
         },
         validate(callback) {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    let dynamicList = [];
+            if (!this.$refs.form || !this.$refs.form.validate) {
+                callback(true, this.hide);
+                return;
+            }
+            this.$refs.form
+                .validate()
+                .then(() => {
+                    const dynamicList = [];
                     this.dynamicOption.forEach((ele) => {
                         if (!this.validateNull(this.$refs[ele.prop][0].$refs.temp.$refs.main)) {
-                            this.$refs[ele.prop][0].$refs.temp.$refs.main.forEach((ele) => {
-                                dynamicList.push(ele.validateCellForm());
+                            this.$refs[ele.prop][0].$refs.temp.$refs.main.forEach((item) => {
+                                dynamicList.push(item.validateCellForm());
                             });
                         }
                     });
                     Promise.all(dynamicList).then((res) => {
-                        let count = 0;
-                        res.forEach((error, index) => {
-                            if (!error) count++;
-                        });
-                        if (count == 0) {
+                        const hasError = res.some((error) => !error);
+                        if (!hasError) {
                             this.show();
                             callback(true, this.hide);
                         } else {
                             callback(false, this.hide);
                         }
                     });
-                } else callback(false, this.hide);
-            });
+                })
+                .catch(() => {
+                    callback(false, this.hide);
+                });
         },
         submit() {
             this.validate((valid) => {
@@ -269,7 +273,13 @@ export default {
             });
         },
         resetFields() {
-            this.$refs.form.resetFields();
+            if (this.$refs.form && this.$refs.form.resetValidation) {
+                this.$refs.form.resetValidation();
+            }
+            const defaults = formInitVal(this.column).tableForm;
+            Object.keys(defaults).forEach((key) => {
+                this.form[key] = defaults[key];
+            });
         },
         show() {
             this.allDisabled = true;
@@ -289,7 +299,7 @@ export default {
     padding: 0 30rpx calc(env(safe-area-inset-bottom) + 5px);
     background: #fff;
 
-    ::v-deep.u-arrow-down-icon {
+    ::v-deep .van-icon {
         margin-right: 0;
     }
 
@@ -305,7 +315,7 @@ export default {
         align-items: center;
         justify-content: space-around;
 
-        ::v-deep.u-btn {
+        ::v-deep .van-button {
             width: 100%;
             padding: 0;
             margin: 0 10rpx;

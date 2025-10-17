@@ -1,6 +1,6 @@
 <template>
 	<div class="wf-map">
-		<u-input v-model="address" :placeholder="getPlaceholder(column)" type="text" disabled @click="onClick"></u-input>
+                <van-field v-model="address" :placeholder="getPlaceholder(column)" type="text" readonly @click="onClick"></van-field>
 	</div>
 </template>
 
