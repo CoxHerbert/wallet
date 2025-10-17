@@ -170,7 +170,7 @@ export default {
 		onConfirm(value) {
 			const { hour, minute, second } = value
 			const result = `${hour}:${minute}:${second}`
-			if (this.type == 5) this.$set(this, 'text', result)
+                        if (this.type == 5) this.text = result
 			else {
 				if (this.timeType == 'initStartDate') {
 					this.initStartDate = result

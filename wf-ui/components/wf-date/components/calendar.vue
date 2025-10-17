@@ -403,13 +403,13 @@ export default {
 			if (this[this.timeType]) this.defaultTime = this[this.timeType]
 			this.showTime = true
 		},
-		handleTimeConfirm(value) {
-			const { hour, minute, second } = value
-			this.$set(this, this.timeType, `${hour}:${minute}:${second}`)
-		},
-		handleTimeCancel() {
-			this.$set(this, this.timeType, '')
-		},
+                handleTimeConfirm(value) {
+                        const { hour, minute, second } = value
+                        this[this.timeType] = `${hour}:${minute}:${second}`
+                },
+                handleTimeCancel() {
+                        this[this.timeType] = ''
+                },
 		getColor(index, type) {
 			let color = [1, 3].includes(type) ? '' : this.color
 			let day = index + 1

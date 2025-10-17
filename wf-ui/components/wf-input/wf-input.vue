@@ -8,7 +8,7 @@
 			:disabled="disabled"
 			:height="column.height || '70rpx'"
 			:border="column.border || false"
-			@click.native="handleClick"
+                        @click="handleClick"
 			@focus="handleFocus"
 			@blur="handleBlur"
 		/>

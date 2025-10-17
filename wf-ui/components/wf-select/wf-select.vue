@@ -45,8 +45,8 @@ export default {
 				text.push(d['value'])
 				textLabel.push(d['label'] || '')
 			})
-			this.$set(this, 'text', text.join(','))
-			this.$set(this, 'textLabel', textLabel.join(','))
+                        this.text = text.join(',')
+                        this.textLabel = textLabel.join(',')
 			this.$emit('label-change', textLabel.join(','))
 		}
 	}

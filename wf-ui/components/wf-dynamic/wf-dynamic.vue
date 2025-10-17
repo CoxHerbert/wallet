@@ -97,13 +97,17 @@ export default {
 		handleAddRow() {
 			this.text.push({})
 		},
-		handleDelRow(index) {
-			this.$delete(this.text, index)
-		},
-		handleLabelChange({ prop, value, index }) {
-			this.$set(this.text[index], `$${prop}`, value)
-		}
-	}
+                handleDelRow(index) {
+                        this.text.splice(index, 1)
+                },
+                handleLabelChange({ prop, value, index }) {
+                        if (!this.text[index]) return
+                        this.text[index] = {
+                                ...this.text[index],
+                                [`$${prop}`]: value
+                        }
+                }
+        }
 }
 </script>
 

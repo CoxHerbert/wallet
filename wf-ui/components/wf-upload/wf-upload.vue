@@ -81,15 +81,18 @@ export default {
 					const data = getAsVal(res, this.propsHttp.res)
 					const url = getAsVal(data, this.propsHttp.url)
 					const name = getAsVal(data, this.propsHttp.name)
-					this.$set(this.fileList, this.fileList.length, { url, name, progress: 100 })
-					this.onChange()
-				})
-			})
-		},
-		onRemove(index) {
-			this.$delete(this.fileList, index)
-			this.onChange()
-		},
+                                        this.fileList = [
+                                                ...this.fileList,
+                                                { url, name, progress: 100 }
+                                        ]
+                                        this.onChange()
+                                })
+                        })
+                },
+                onRemove(index) {
+                        this.fileList.splice(index, 1)
+                        this.onChange()
+                },
 		onChange() {
 			let arr = []
 			if (this.validateNull(this.propsHttp.name) || this.stringMode) {

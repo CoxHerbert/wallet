@@ -1,6 +1,6 @@
 <template>
 	<view class="wf-checkbox">
-		<u-checkbox-group :disabled="disabled" @change="onChange" @click.native="handleClick">
+                <u-checkbox-group :disabled="disabled" @change="onChange" @click="handleClick">
 			<u-checkbox v-model="item.checked" v-for="(item, index) in list" :key="index" :name="item[valueKey]">
 				{{ item[labelKey] }}
 			</u-checkbox>

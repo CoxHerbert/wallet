@@ -7,7 +7,7 @@
 			:step="column.step"
 			:disabled="disabled"
 			:positive-integer="false"
-			@click.native="handleClick"
+                        @click="handleClick"
 			@focus="handleFocus"
 			@blur="handleBlur"
 		></u-number-box>
