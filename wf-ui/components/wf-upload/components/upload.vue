@@ -1,14 +1,7 @@
 <template>
     <view class="wf-upload">
         <view class="wf-upload-button" v-if="!disabled && fileList.length < limit">
-            <button
-                :style="{ 'background-color': '#007aff', color: '#fff' }"
-                type="default"
-                size="mini"
-                @click="handleChooseFile"
-            >
-                点击上传
-            </button>
+            <van-button type="primary" size="small" block @click="handleChooseFile">点击上传</van-button>
         </view>
         <view class="wf-upload-file">
             <view v-for="(item, index) in fileList" :key="index" class="wf-upload-file__item">
@@ -22,9 +15,9 @@
                 <span v-else class="wf-upload-file__item--name" @click="handleAttachments(item)">{{
                     item.name || item.url
                 }}</span>
-                <view v-if="!disabled" class="wf-upload-file__item--icon" @click="onRemove(index)"
-                    ><u-icon name="close"></u-icon
-                ></view>
+                <view v-if="!disabled" class="wf-upload-file__item--icon" @click="onRemove(index)">
+                    <van-icon name="cross" />
+                </view>
             </view>
         </view>
     </view>

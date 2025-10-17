@@ -1,11 +1,16 @@
 <template>
-	<view class="wf-checkbox">
-                <u-checkbox-group :disabled="disabled" @change="onChange" @click="handleClick">
-			<u-checkbox v-model="item.checked" v-for="(item, index) in list" :key="index" :name="item[valueKey]">
-				{{ item[labelKey] }}
-			</u-checkbox>
-		</u-checkbox-group>
-	</view>
+        <view class="wf-checkbox">
+                <van-checkbox-group v-model="text" :disabled="disabled" @click="handleClick">
+                        <van-checkbox
+                                v-for="(item, index) in list"
+                                :key="index"
+                                :name="item[valueKey]"
+                                :disabled="item.disabled"
+                        >
+                                {{ item[labelKey] }}
+                        </van-checkbox>
+                </van-checkbox-group>
+        </view>
 </template>
 
 <script>
@@ -25,21 +30,23 @@ export default {
 		return { list: [] }
 	},
 	methods: {
-		initValue() {
-			if (this.validateNull(this.dic)) return
-			if (this.text) {
-				const valueArr = (this.text + '').split(',')
-				this.dic.forEach((v, i) => {
-					if (valueArr.find(val => val == v[this.valueKey])) v.checked = true
-					else v.checked = false
-				})
-			}
-			this.list = this.deepClone(this.dic)
-		},
-		onChange(val) {
-			this.text = val
-		}
-	}
+                initValue() {
+                        if (this.validateNull(this.dic)) return
+                        let valueArr = []
+                        if (Array.isArray(this.text)) valueArr = this.text
+                        else if (!this.validateNull(this.text)) valueArr = (this.text + '').split(',')
+                        if (valueArr.length) {
+                                this.dic.forEach((v, i) => {
+                                        if (valueArr.find(val => val == v[this.valueKey])) v.checked = true
+                                        else v.checked = false
+                                })
+                        }
+                        this.list = this.deepClone(this.dic)
+                        if (!Array.isArray(this.text)) {
+                                this.text = valueArr
+                        }
+                }
+        }
 }
 </script>
 

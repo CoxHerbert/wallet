@@ -1,14 +1,13 @@
 <template>
 	<view class="wf-switch">
-		<u-switch
-			v-model="checked"
-			:active-value="activeValue"
-			:inactive-value="inactiveValue"
-			size="40"
-			vibrate-short
-			:disabled="disabled"
-			@change="onChange"
-		></u-switch>
+                <van-switch
+                        v-model="checked"
+                        :active-value="activeValue"
+                        :inactive-value="inactiveValue"
+                        size="20"
+                        :disabled="disabled"
+                        @change="onChange"
+                ></van-switch>
 	</view>
 </template>
 

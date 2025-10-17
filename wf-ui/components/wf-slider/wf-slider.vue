@@ -1,12 +1,14 @@
 <template>
 	<view class="wf-slider">
-		<u-slider
-			:value="startValue"
-			:endValue="endValue"
-			:section="column.range"
-			:disabled="disabled"
-			@change="onChange"
-		></u-slider>
+                <van-slider
+                        v-model="sliderValue"
+                        :max="column.max || 100"
+                        :min="column.min || 0"
+                        :step="column.step || 1"
+                        :disabled="disabled"
+                        :range="!!column.range"
+                        @change="onChange"
+                ></van-slider>
 		<span class="wf-slider__text">{{ showText }}</span>
 	</view>
 </template>
@@ -14,15 +16,12 @@
 <script>
 import Props from '../../mixins/props.js'
 
-import Slider from './components/slider'
-
 export default {
-	name: 'wf-slider',
-	mixins: [Props],
-	components: { 'u-slider': Slider },
-	watch: {
-		text: {
-			handler(val) {
+        name: 'wf-slider',
+        mixins: [Props],
+        watch: {
+                text: {
+                        handler(val) {
 				this.initValue()
 				this.handleChange(val)
 			}
@@ -34,21 +33,31 @@ export default {
 			else return this.text
 		}
 	},
-	data() {
-		return { text: 0, startValue: 0, endValue: 0 }
-	},
-	methods: {
-		initValue() {
-			const value = (this.text + '').split(',')
-			if (this.column.range) this.endValue = Number(value[1]) || 0
-			this.startValue = Number(value[0]) || 0
-		},
-		onChange({ value, endValue }) {
-			if (!value) return
-			if (this.column.range) this.text = [value, endValue]
-			else this.text = value
-		}
-	}
+        data() {
+                return { text: 0, sliderValue: 0 }
+        },
+        methods: {
+                initValue() {
+                        if (this.column.range) {
+                                const value = Array.isArray(this.text) ? this.text : (this.text + '').split(',')
+                                const start = Number(value[0]) || 0
+                                const end = Number(value[1] ?? start) || 0
+                                this.sliderValue = [start, end]
+                        } else {
+                                const single = Array.isArray(this.text) ? this.text[0] : this.text
+                                this.sliderValue = Number(single) || 0
+                        }
+                },
+                onChange(value) {
+                        if (this.column.range) {
+                                const result = Array.isArray(value) ? value : this.sliderValue
+                                this.text = result
+                        } else {
+                                const result = typeof value === 'number' ? value : this.sliderValue
+                                this.text = result
+                        }
+                }
+        }
 }
 </script>
 
