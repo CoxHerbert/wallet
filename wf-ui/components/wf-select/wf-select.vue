@@ -1,95 +1,107 @@
 <template>
-        <view class="wf-select">
-                <van-field
-                        v-model="textLabel"
-                        is-link
-                        readonly
-                        :placeholder="getPlaceholder(column, column.type)"
-                        @click="onClick"
-                />
-                <van-popup v-model:show="show" position="bottom" round>
-                        <van-picker
-                                show-toolbar
-                                :title="column.label"
-                                :columns="dic"
-                                :columns-field-names="columnsFieldNames"
-                                :default-index="defaultIndex"
-                                @confirm="handleSubmit"
-                                @cancel="show = false"
-                        />
-                </van-popup>
-        </view>
+  <div class="wf-select">
+    <select
+      class="wf-select__control"
+      v-model="selectedValue"
+      :multiple="isMultiple"
+      :disabled="disabled"
+      @change="onChange"
+      @click="handleClick"
+    >
+      <option v-if="!isMultiple" disabled value="">
+        {{ getPlaceholder(column, column.type) }}
+      </option>
+      <option
+        v-for="(option, index) in flatOptions"
+        :key="index"
+        :value="option.value"
+        :disabled="option.disabled"
+      >
+        {{ option.label }}
+      </option>
+    </select>
+  </div>
 </template>
 
 <script>
 import Props from '../../mixins/props.js'
 export default {
-	name: 'wf-select',
-	mixins: [Props],
-	watch: {
-		dic: {
-			handler(val) {
-					if (!this.validateNull(val)) this.initTextLabel()
-			},
-			deep: true
-		}
-	},
-        data() {
-                return {
-                        defaultValue: [],
-                        show: false
-                }
-        },
-        computed: {
-                columnsFieldNames() {
-                        return {
-                                text: this.labelKey,
-                                value: this.valueKey,
-                                children: this.childrenKey
-                        }
-                },
-                defaultIndex() {
-                        if (this.validateNull?.(this.text)) return 0
-                        const index = this.dic?.findIndex?.((item) => item?.[this.valueKey] == this.text)
-                        return index > -1 ? index : 0
-                }
-        },
-        methods: {
-                onClick() {
-                        if (!this.disabled) this.show = true
-                        this.handleClick()
-                },
-                handleSubmit(payload) {
-                        let options = []
-                        if (Array.isArray(payload)) {
-                                options = payload
-                        } else if (Array.isArray(payload?.selectedOptions)) {
-                                options = payload.selectedOptions
-                        } else if (payload?.selectedValues) {
-                                options = (payload.selectedValues || []).map((value, idx) => ({
-                                        [this.valueKey]: value,
-                                        [this.labelKey]: payload?.selectedOptions?.[idx]?.[this.labelKey]
-                                }))
-                        } else if (payload) {
-                                options = [payload]
-                        }
-                        const text = []
-                        const textLabel = []
-                        options.forEach(d => {
-                                text.push(d?.[this.valueKey])
-                                textLabel.push(d?.[this.labelKey] || '')
-                        })
-                        this.text = text.join(',')
-                        this.textLabel = textLabel.join(',')
-                        this.$emit('label-change', this.textLabel)
-                        this.show = false
-                }
+  name: 'wf-select',
+  mixins: [Props],
+  data() {
+    return { selectedValue: '' }
+  },
+  computed: {
+    isMultiple() {
+      return !!this.column?.multiple
+    },
+    flatOptions() {
+      const options = []
+      const traverse = (list = [], parents = []) => {
+        list.forEach((item) => {
+          const labelParts = [...parents, item?.[this.labelKey] || '']
+          const label = labelParts.filter(Boolean).join(' / ')
+          options.push({
+            value: item?.[this.valueKey],
+            label,
+            disabled: item?.disabled
+          })
+          const children = item?.[this.childrenKey]
+          if (Array.isArray(children) && children.length) {
+            traverse(children, labelParts)
+          }
+        })
+      }
+      traverse(this.dic)
+      return options
+    }
+  },
+  watch: {
+    text: {
+      handler(val) {
+        if (this.isMultiple) {
+          if (Array.isArray(val)) this.selectedValue = val
+          else if (typeof val === 'string' && val) this.selectedValue = val.split(',')
+          else this.selectedValue = []
+        } else {
+          if (Array.isArray(val)) this.selectedValue = val[0] ?? ''
+          else this.selectedValue = val ?? ''
         }
+      },
+      immediate: true
+    },
+    dic: {
+      handler(val) {
+        if (!this.validateNull(val)) this.initTextLabel?.()
+      },
+      deep: true
+    }
+  },
+  methods: {
+    onChange() {
+      if (this.isMultiple) {
+        const values = Array.isArray(this.selectedValue) ? this.selectedValue : []
+        this.text = this.stringMode ? values.join(',') : values
+      } else {
+        const value = this.selectedValue ?? ''
+        this.text = value
+      }
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .wf-select {
-	width: 100%;
+  width: 100%;
+}
+
+.wf-select__control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
 }
 </style>

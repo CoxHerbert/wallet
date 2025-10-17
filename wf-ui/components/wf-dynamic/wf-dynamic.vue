@@ -1,126 +1,137 @@
 <template>
-	<view class="wf-dynamic">
-		<u-card
-			:head-style="{ padding: '16rpx 30rpx' }"
-			:body-style="{ padding: 0 }"
-			margin="0 0 30rpx 0"
-			v-if="text && text.length == 0"
-		>
-			<view class="head" slot="head">
-				<view class="title">#1</view>
-				<view class="add-btn" @click="handleAddRow" v-if="option.addBtn && !disabled">
-					<u-icon name="plus"></u-icon>
-					<text>添加</text>
-				</view>
-			</view>
-		</u-card>
-		<block v-for="(item, index) in text" :key="index" v-else>
-			<u-card
-				:head-style="{ padding: '16rpx 30rpx' }"
-				:body-style="{ padding: 0 }"
-				:foot-style="{ padding: '20rpx 30rpx' }"
-				:key="index"
-				margin="0 0 30rpx 0"
-			>
-				<view class="head" slot="head">
-					<view class="title">#{{ index + 1 }}</view>
-					<view class="add-btn" @click="handleAddRow" v-if="option.addBtn && !disabled">
-						<u-icon name="plus"></u-icon>
-						<text>添加</text>
-					</view>
-				</view>
-				<view slot="body">
-					<!-- #ifdef MP -->
-					<wf-form
-						ref="main"
-						v-model="text[index]"
-						:option="{ labelPosition: 'top', disabled: disabled, dynamicIndex: index, ...option }"
-						@label-change="handleLabelChange"
-					></wf-form>
-					<!-- #endif -->
-					<!-- #ifndef MP -->
-					<wkf-form
-						ref="main"
-						v-model="text[index]"
-						:option="{ labelPosition: 'top', disabled: disabled, dynamicIndex: index, ...option }"
-						@label-change="handleLabelChange"
-					></wkf-form>
-					<!-- #endif -->
-				</view>
-				<view class="head" slot="foot" v-if="!disabled">
-					<u-button
-						v-if="option.addBtn"
-						plain
-						type="primary"
-						size="medium"
-						:custom-style="{ width: '45%' }"
-						@click="handleAddRow"
-					>
-						添 加
-					</u-button>
-					<u-button
-						v-if="option.delBtn"
-						plain
-						type="error"
-						size="medium"
-						:custom-style="{ width: '45%' }"
-						@click="handleDelRow(index)"
-					>
-						删 除
-					</u-button>
-				</view>
-			</u-card>
-		</block>
-	</view>
+  <div class="wf-dynamic">
+    <template v-if="!text || text.length === 0">
+      <div class="wf-dynamic__card">
+        <div class="wf-dynamic__head">
+          <div class="wf-dynamic__title">#1</div>
+          <button type="button" class="wf-dynamic__action" @click="handleAddRow" v-if="option.addBtn && !disabled">
+            添加
+          </button>
+        </div>
+      </div>
+    </template>
+    <template v-else>
+      <div class="wf-dynamic__card" v-for="(item, index) in text" :key="index">
+      <div class="wf-dynamic__head">
+        <div class="wf-dynamic__title">#{{ index + 1 }}</div>
+        <button type="button" class="wf-dynamic__action" @click="handleAddRow" v-if="option.addBtn && !disabled">
+          添加
+        </button>
+      </div>
+      <div class="wf-dynamic__body">
+        <wf-form
+          ref="main"
+          v-model="text[index]"
+          :option="{ labelPosition: 'top', disabled: disabled, dynamicIndex: index, ...option }"
+          @label-change="handleLabelChange"
+        />
+      </div>
+      <div class="wf-dynamic__foot" v-if="!disabled">
+        <button
+          v-if="option.addBtn"
+          type="button"
+          class="wf-dynamic__secondary"
+          @click="handleAddRow"
+        >
+          添 加
+        </button>
+        <button
+          v-if="option.delBtn"
+          type="button"
+          class="wf-dynamic__danger"
+          @click="handleDelRow(index)"
+        >
+          删 除
+        </button>
+      </div>
+    </template>
+  </div>
 </template>
 
 <script>
 import Props from '../../mixins/props.js'
-// #ifdef APP
-import WkfForm from '../wkf-form/wkf-form.vue'
-// #endif
+import WfForm from '../wf-form/wf-form.vue'
 export default {
-	name: 'wf-dynamic',
-	// #ifdef H5
-	components: { WkfForm: () => import('../wf-form/wf-form.vue') },
-	// #endif
-	// #ifdef APP
-	components: { WkfForm },
-	// #endif
-	mixins: [Props],
-	computed: {
-		option() {
-			return this.column.children
-		}
-	},
-	methods: {
-		handleAddRow() {
-			this.text.push({})
-		},
-                handleDelRow(index) {
-                        this.text.splice(index, 1)
-                },
-                handleLabelChange({ prop, value, index }) {
-                        if (!this.text[index]) return
-                        this.text[index] = {
-                                ...this.text[index],
-                                [`$${prop}`]: value
-                        }
-                }
-        }
+  name: 'wf-dynamic',
+  components: { WfForm },
+  mixins: [Props],
+  computed: {
+    option() {
+      return this.column.children || {}
+    }
+  },
+  methods: {
+    handleAddRow() {
+      if (!Array.isArray(this.text)) this.text = []
+      this.text.push({})
+    },
+    handleDelRow(index) {
+      if (!Array.isArray(this.text)) return
+      this.text.splice(index, 1)
+    },
+    handleLabelChange({ prop, value, index }) {
+      if (!this.text[index]) return
+      this.text[index] = {
+        ...this.text[index],
+        [`$${prop}`]: value
+      }
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .wf-dynamic {
-	width: 690rpx;
-	.head {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-	.add-btn {
-		color: #4b9eff;
-	}
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wf-dynamic__card {
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.wf-dynamic__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.wf-dynamic__title {
+  font-weight: 600;
+}
+
+.wf-dynamic__action,
+.wf-dynamic__secondary,
+.wf-dynamic__danger {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.wf-dynamic__action,
+.wf-dynamic__secondary {
+  background-color: #409eff;
+  color: #fff;
+}
+
+.wf-dynamic__danger {
+  background-color: #f56c6c;
+  color: #fff;
+  margin-left: 8px;
+}
+
+.wf-dynamic__body {
+  margin-bottom: 12px;
+}
+
+.wf-dynamic__foot {
+  display: flex;
+  gap: 8px;
 }
 </style>

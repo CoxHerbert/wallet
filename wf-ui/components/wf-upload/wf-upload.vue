@@ -65,29 +65,36 @@ export default {
 				this.fileList = fileList
 			}
 		},
-		onChoose(list) {
-			list.forEach(file => {
-				const { path, tempFilePath } = file
-				const params = {
-					// #ifdef MP-ALIPAY
-					fileType: 'image/video/audio', // 仅支付宝小程序，且必填。
-					// #endif
-					filePath: path || tempFilePath,
-					name: this.fileName,
-					header: this.header,
-					formData: this.formData
-				}
-				this.$http.upload(this.action, params).then(res => {
-					const data = getAsVal(res, this.propsHttp.res)
-					const url = getAsVal(data, this.propsHttp.url)
-					const name = getAsVal(data, this.propsHttp.name)
+                async onChoose(list) {
+                        for (const file of list) {
+                                if (!(file instanceof File)) continue
+                                const formData = new FormData()
+                                formData.append(this.fileName, file)
+                                Object.entries(this.formData || {}).forEach(([key, value]) => {
+                                        formData.append(key, value)
+                                })
+                                try {
+                                        const headers = { ...(this.header || {}) }
+                                        if (headers['Content-Type']) delete headers['Content-Type']
+                                        const response = await fetch(this.action, {
+                                                method: 'POST',
+                                                headers,
+                                                body: formData
+                                        })
+                                        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+                                        const res = await response.json().catch(() => ({}))
+                                        const data = getAsVal(res, this.propsHttp.res)
+                                        const url = getAsVal(data, this.propsHttp.url)
+                                        const name = getAsVal(data, this.propsHttp.name) || file.name
                                         this.fileList = [
                                                 ...this.fileList,
                                                 { url, name, progress: 100 }
                                         ]
                                         this.onChange()
-                                })
-                        })
+                                } catch (error) {
+                                        console.error('Upload failed', error)
+                                }
+                        }
                 },
                 onRemove(index) {
                         this.fileList.splice(index, 1)

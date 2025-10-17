@@ -1,333 +1,306 @@
 <template>
-    <view class="wf-form">
-        <u-form class="wf-form-content" ref="form" :model="form" :error-type="['border-bottom', 'toast']">
-            <template v-if="option.column && option.column.length > 0">
-                <template v-for="(item, index) in option.column">
-                    <wf-form-item
-                        v-if="item.display !== false && filter(item)"
-                        v-model="form[item.prop]"
-                        :ref="item.prop"
-                        :column="item"
-                        :disabled="
-                            allDisabled ||
-                            option.disabled ||
-                            option.readonly ||
-                            option.detail ||
-                            item.disabled ||
-                            item.readonly ||
-                            item.detail
-                        "
-                        :dic="dic[item.prop]"
-                        :label-width="option.labeWidth"
-                        :label-position="option.labelPosition"
-                        :key="index"
-                        :dynamic-index="option.dynamicIndex"
-                        @label-change="handleLabelChange"
-                    ></wf-form-item>
-                </template>
-            </template>
-            <template v-if="option.group && option.group.length > 0">
-                <u-collapse :accordion="false" hover-class="none" :head-style="{ padding: '38rpx 0' }">
-                    <template v-for="(group, gIndex) in option.group">
-                        <u-collapse-item
-                            v-if="group.display !== false"
-                            :key="gIndex"
-                            :disabled="group.arrow === false"
-                            :open="group.collapse !== false"
-                            :title="group.label"
-                        >
-                            <!-- #ifndef APP -->
-                            <template #title>
-                                <span>
-                                    <u-icon
-                                        v-if="group.icon"
-                                        :name="group.icon.replace('el-icon-', '')"
-                                        style="margin-right: 10rpx"
-                                    ></u-icon>
-                                    {{ group.label }}
-                                </span>
-                            </template>
-                            <!-- #endif -->
-                            <template v-for="(item, index) in group.column">
-                                <wf-form-item
-                                    v-if="item.display !== false && filter(item)"
-                                    v-model="form[item.prop]"
-                                    :ref="item.prop"
-                                    :column="item"
-                                    :disabled="
-                                        allDisabled ||
-                                        option.disabled ||
-                                        option.readonly ||
-                                        option.detail ||
-                                        item.disabled ||
-                                        item.readonly ||
-                                        item.detail
-                                    "
-                                    :dic="dic[item.prop]"
-                                    :key="index"
-                                    :label-width="option.labelWidth"
-                                    :label-position="option.labelPosition"
-                                    :dynamic-index="option.dynamicIndex"
-                                    @label-change="handleLabelChange"
-                                ></wf-form-item>
-                            </template>
-                        </u-collapse-item>
-                    </template>
-                </u-collapse>
-            </template>
-        </u-form>
-        <view
-            v-if="
-                ((option.column && option.column.length > 0) || (option.group && option.group.length > 0)) &&
-                menuBtn.show
+  <div class="wf-form">
+    <form class="wf-form-content" ref="form" @submit.prevent>
+      <template v-if="option.column && option.column.length > 0">
+        <template v-for="(item, index) in option.column" :key="`column-${index}`">
+          <wf-form-item
+            v-if="item.display !== false && filter(item)"
+            v-model="form[item.prop]"
+            :ref="item.prop"
+            :column="item"
+            :disabled="
+              allDisabled ||
+              option.disabled ||
+              option.readonly ||
+              option.detail ||
+              item.disabled ||
+              item.readonly ||
+              item.detail
             "
-            class="wf-form-bottom"
+            :dic="dic[item.prop]"
+            :label-width="option.labelWidth"
+            :label-position="option.labelPosition"
+            :key="index"
+            :dynamic-index="option.dynamicIndex"
+            @label-change="handleLabelChange"
+          />
+        </template>
+      </template>
+      <template v-if="option.group && option.group.length > 0">
+        <div
+          v-for="(group, gIndex) in option.group"
+          :key="`group-${gIndex}`"
+          v-if="group.display !== false"
+          class="wf-form-group"
         >
-            <u-button <!-- #ifdef MP -->
-                :custom-style="{ width: '320rpx'}"
-                <!-- #endif -->
-                v-if="menuBtn.submitBtn" :loading="allDisabled" type="primary" size="medium" @click="submit" >
-                {{ menuBtn.submitText }}
-            </u-button>
-            <slot name="menu"></slot>
-            <!-- <u-button v-if="menuBtn.enptyBtn" :loading="allDisabled"  type="info" size="medium" @click="clear">{{ menuBtn.emptyText }}</u-button> -->
-        </view>
-    </view>
+          <div class="wf-form-group__title">
+            <span v-if="group.icon" class="wf-form-group__icon">{{ group.icon }}</span>
+            {{ group.label }}
+          </div>
+          <div class="wf-form-group__content">
+            <wf-form-item
+              v-for="(item, index) in group.column"
+              :key="`group-${gIndex}-${index}`"
+              v-if="item.display !== false && filter(item)"
+              v-model="form[item.prop]"
+              :ref="item.prop"
+              :column="item"
+              :disabled="
+                allDisabled ||
+                option.disabled ||
+                option.readonly ||
+                option.detail ||
+                item.disabled ||
+                item.readonly ||
+                item.detail
+              "
+              :dic="dic[item.prop]"
+              :label-width="option.labelWidth"
+              :label-position="option.labelPosition"
+              :dynamic-index="option.dynamicIndex"
+              @label-change="handleLabelChange"
+            />
+          </div>
+        </div>
+      </template>
+    </form>
+    <div
+      v-if="
+        ((option.column && option.column.length > 0) || (option.group && option.group.length > 0)) &&
+        menuBtn.show
+      "
+      class="wf-form-bottom"
+    >
+      <button
+        v-if="menuBtn.submitBtn"
+        type="button"
+        class="wf-form-bottom__btn wf-form-bottom__btn--primary"
+        :disabled="allDisabled"
+        @click="submit"
+      >
+        {{ menuBtn.submitText }}
+      </button>
+      <slot name="menu"></slot>
+    </div>
+  </div>
 </template>
 
 <script>
-import Dic from '../../mixins/dic.js';
-import { formInitVal, initRules } from '../../util/dataformat.js';
-import { filter } from '../../util/unsupport.js';
+import Dic from '../../mixins/dic.js'
+import { formInitVal, initRules } from '../../util/dataformat.js'
+import { filter } from '../../util/unsupport.js'
 export default {
-    name: 'wf-form',
-    mixins: [Dic],
-    props: {
-        option: {
-            type: Object,
-            required: true,
-            default: () => {
-                return { column: [], menuBtn: false };
-            },
-        },
-        value: {},
+  name: 'wf-form',
+  mixins: [Dic],
+  props: {
+    option: {
+      type: Object,
+      required: true,
+      default: () => ({ column: [], menuBtn: false })
     },
-    watch: {
-        form: {
-            handler(val) {
-                if (this.formCreate) {
-                    this.$emit('input', val);
-                }
-            },
-            deep: true,
-        },
-        value: {
-            handler(val) {
-                if (this.formCreate) {
-                    this.setForm(val);
-                } else {
-                    this.formVal = Object.assign(this.formVal, val || {});
-                }
-            },
-            deep: true,
-            immediate: true,
-        },
-        option: {
-            handler() {
-                this.init(false);
-            },
-            deep: true,
-        },
+    value: {}
+  },
+  watch: {
+    form: {
+      handler(val) {
+        if (this.formCreate) {
+          this.$emit('input', val)
+        }
+      },
+      deep: true
     },
-    computed: {
-        column() {
-            let result = [];
-            const column = this.option.column;
-            const group = this.option.group;
-            if (!this.validateNull(column)) result = column;
-            if (!this.validateNull(group)) {
-                group.forEach((g) => {
-                    if (!this.validateNull(g.column)) result = result.concat(g.column);
-                });
-            }
-            return result;
-        },
-        dynamicOption() {
-            let list = [];
-            this.column.forEach((ele) => {
-                if (ele.type == 'dynamic' && ele.display !== false && filter(ele)) {
-                    list.push(ele);
-                }
-            });
-            return list;
-        },
-        menuBtn() {
-            const { menuBtn, submitBtn, enptyBtn, submitText, emptyText, detail, readonly, disabled } = this.option;
-            return {
-                show: menuBtn === false || detail || readonly || disabled ? false : true,
-                submitBtn: submitBtn === false ? false : true,
-                enptyBtn: enptyBtn === false ? false : true,
-                submitText: submitText || '提交',
-                emptyText: emptyText || '清空',
-            };
-        },
+    value: {
+      handler(val) {
+        if (this.formCreate) {
+          this.setForm(val)
+        } else {
+          this.formVal = Object.assign(this.formVal, val || {})
+        }
+      },
+      deep: true,
+      immediate: true
     },
-    data() {
-        return {
-            form: {},
-            rules: {},
-            dic: {},
-            formVal: {},
-            formCreate: false,
-            allDisabled: false,
-        };
+    option: {
+      handler() {
+        this.init(false)
+      },
+      deep: true
+    }
+  },
+  computed: {
+    column() {
+      let result = []
+      const column = this.option.column
+      const group = this.option.group
+      if (!this.validateNull(column)) result = column
+      if (!this.validateNull(group)) {
+        group.forEach((g) => {
+          if (!this.validateNull(g.column)) result = result.concat(g.column)
+        })
+      }
+      return result
     },
-    mounted() {
-        setTimeout(() => {
-            this.init();
-        }, 200);
+    dynamicOption() {
+      const list = []
+      this.column.forEach((ele) => {
+        if (ele.type == 'dynamic' && ele.display !== false && filter(ele)) {
+          list.push(ele)
+        }
+      })
+      return list
     },
-    methods: {
-        filter,
-        // 初始化
-        init(init = true) {
-            this.initDic();
-            if (init) {
-                const defaultValue = formInitVal(this.column).tableForm;
-                Object.keys(defaultValue).forEach((ele) => {
-                    if (this.validateNull(this.formVal[ele])) {
-                        this.formVal[ele] = defaultValue[ele];
-                    }
-                });
-                this.setForm(this.formVal);
-            }
-            this.$refs.form.setRules(initRules(this.column));
-            // #ifdef MP
-            this.initFunc();
-            // #endif
-            this.formCreate = true;
-        },
-        // 初始化字典
-        initDic() {
-            this.column.forEach((col) => {
-                this.handleDic(col).then((dic) => {
-                    if (!this.validateNull(dic)) {
-                        this.dic[col.prop] = dic;
-                    }
-                });
-            });
-        },
-        // #ifdef MP
-        initFunc() {
-            const column = this.option.column;
-            const group = this.option.group;
-            if (!this.validateNull(column)) {
-                column.forEach((col) => {
-                    col.value = this.form[col.prop];
-                });
-            }
-            if (!this.validateNull(group)) {
-                group.forEach((g) => {
-                    if (!this.validateNull(g.column)) {
-                        g.column.forEach((col) => {
-                            col.value = this.form[col.prop];
-                        });
-                    }
-                });
-            }
-        },
-        // #endif
-        // 表单赋值
-        setForm(value) {
-            Object.keys(value).forEach((ele) => {
-                this.form[ele] = value[ele];
-            });
-        },
-        validateCellForm() {
-            return new Promise((resolve) => {
-                this.$refs.form.validate((valid) => {
-                    resolve(valid);
-                });
-            });
-        },
-        validate(callback) {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    let dynamicList = [];
-                    this.dynamicOption.forEach((ele) => {
-                        if (!this.validateNull(this.$refs[ele.prop][0].$refs.temp.$refs.main)) {
-                            this.$refs[ele.prop][0].$refs.temp.$refs.main.forEach((ele) => {
-                                dynamicList.push(ele.validateCellForm());
-                            });
-                        }
-                    });
-                    Promise.all(dynamicList).then((res) => {
-                        let count = 0;
-                        res.forEach((error, index) => {
-                            if (!error) count++;
-                        });
-                        if (count == 0) {
-                            this.show();
-                            callback(true, this.hide);
-                        } else {
-                            callback(false, this.hide);
-                        }
-                    });
-                } else callback(false, this.hide);
-            });
-        },
-        submit() {
-            this.validate((valid) => {
-                if (valid) {
-                    this.$emit('submit', this.deepClone(this.form), this.hide);
-                }
-            });
-        },
-        resetFields() {
-            this.$refs.form.resetFields();
-        },
-        show() {
-            this.allDisabled = true;
-        },
-        hide() {
-            this.allDisabled = false;
-        },
-        handleLabelChange({ prop, value, change }) {
-            this.form[`${prop}`] = value;
-            if (change) {
-                change.call(this, { value });
-            }
-        },
+    menuBtn() {
+      const { menuBtn, submitBtn, enptyBtn, submitText, emptyText, detail, readonly, disabled } = this.option
+      return {
+        show: menuBtn === false || detail || readonly || disabled ? false : true,
+        submitBtn: submitBtn === false ? false : true,
+        enptyBtn: enptyBtn === false ? false : true,
+        submitText: submitText || '提交',
+        emptyText: emptyText || '清空'
+      }
+    }
+  },
+  data() {
+    return {
+      form: {},
+      rules: {},
+      dic: {},
+      formVal: {},
+      formCreate: false,
+      allDisabled: false
+    }
+  },
+  mounted() {
+    setTimeout(() => {
+      this.init()
+    }, 200)
+  },
+  methods: {
+    filter,
+    init(init = true) {
+      this.initDic()
+      if (init) {
+        const defaultValue = formInitVal(this.column).tableForm
+        Object.keys(defaultValue).forEach((ele) => {
+          if (this.validateNull(this.formVal[ele])) {
+            this.formVal[ele] = defaultValue[ele]
+          }
+        })
+        this.setForm(this.formVal)
+      }
+      this.rules = initRules(this.column)
+      this.formCreate = true
     },
-};
+    initDic() {
+      this.column.forEach((col) => {
+        this.handleDic(col).then((dic) => {
+          if (!this.validateNull(dic)) {
+            this.$set ? this.$set(this.dic, col.prop, dic) : (this.dic[col.prop] = dic)
+          }
+        })
+      })
+    },
+    setForm(value) {
+      Object.keys(value || {}).forEach((ele) => {
+        this.$set ? this.$set(this.form, ele, value[ele]) : (this.form[ele] = value[ele])
+      })
+    },
+    validateCellForm() {
+      return new Promise((resolve) => {
+        this.validate((valid) => resolve(valid))
+      })
+    },
+    validate(callback) {
+      const errors = []
+      Object.keys(this.rules || {}).forEach((prop) => {
+        const value = this.form[prop]
+        const fieldRules = this.rules[prop]
+        fieldRules.forEach((rule) => {
+          if (rule.required) {
+            const empty = this.validateNull(value) || (Array.isArray(value) && value.length === 0)
+            if (empty) errors.push({ prop, rule })
+          }
+          if (rule.validator && typeof rule.validator === 'function') {
+            const result = rule.validator({}, value)
+            if (result === false) errors.push({ prop, rule })
+          }
+        })
+      })
+      const valid = errors.length === 0
+      if (!valid) {
+        console.warn('Form validation failed', errors)
+      }
+      callback?.(valid, this.hide)
+      return valid
+    },
+    submit() {
+      this.validate((valid) => {
+        if (valid) {
+          this.$emit('submit', this.deepClone(this.form), this.hide)
+        }
+      })
+    },
+    resetFields() {
+      this.form = {}
+      this.init()
+    },
+    show() {
+      this.allDisabled = true
+    },
+    hide() {
+      this.allDisabled = false
+    },
+    handleLabelChange({ prop, value, change }) {
+      this.$set ? this.$set(this.form, `${prop}`, value) : (this.form[`${prop}`] = value)
+      if (change) {
+        change.call(this, { value })
+      }
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
 .wf-form {
-    padding: 0 30rpx;
-    background: #fff;
+  padding: 0 16px;
+  background: #fff;
+}
 
-    ::v-deep.u-arrow-down-icon {
-        margin-right: 0;
-    }
+.wf-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-    &-bottom {
-        width: 100%;
-        padding: 10rpx 30rpx calc(env(safe-area-inset-bottom) + 10rpx) 30rpx;
-        position: fixed;
-        background-color: white;
-        z-index: 3;
-        bottom: 0;
-        left: 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
+.wf-form-group {
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  padding: 12px;
+}
 
-        ::v-deep.u-btn {
-            width: 100%;
-            padding: 0;
-            margin: 0 10rpx;
-        }
-    }
+.wf-form-group__title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.wf-form-bottom {
+  width: 100%;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.wf-form-bottom__btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.wf-form-bottom__btn--primary {
+  background-color: #409eff;
+  color: #fff;
 }
 </style>

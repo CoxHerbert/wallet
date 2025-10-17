@@ -1,173 +1,146 @@
 <template>
-    <view class="wf-upload">
-        <view class="wf-upload-button" v-if="!disabled && fileList.length < limit">
-            <van-button type="primary" size="small" block @click="handleChooseFile">点击上传</van-button>
-        </view>
-        <view class="wf-upload-file">
-            <view v-for="(item, index) in fileList" :key="index" class="wf-upload-file__item">
-                <img
-                    v-if="isImageUrl(item.url)"
-                    :src="item.url"
-                    alt=""
-                    class="img-icon"
-                    @click="handleAttachments(item)"
-                />
-                <span v-else class="wf-upload-file__item--name" @click="handleAttachments(item)">{{
-                    item.name || item.url
-                }}</span>
-                <view v-if="!disabled" class="wf-upload-file__item--icon" @click="onRemove(index)">
-                    <van-icon name="cross" />
-                </view>
-            </view>
-        </view>
-    </view>
+  <div class="wf-upload">
+    <div class="wf-upload-button" v-if="!disabled && fileList.length < limit">
+      <button type="button" class="wf-upload-button__trigger" @click="triggerFileSelect">点击上传</button>
+      <input
+        ref="fileInput"
+        type="file"
+        class="wf-upload-button__input"
+        :multiple="multiple"
+        @change="handleFileChange"
+      />
+    </div>
+    <ul class="wf-upload-file">
+      <li v-for="(item, index) in fileList" :key="index" class="wf-upload-file__item">
+        <img
+          v-if="isImageUrl(item.url)"
+          :src="item.url"
+          alt=""
+          class="img-icon"
+          @click="preview(item.url)"
+        />
+        <a
+          v-else
+          class="wf-upload-file__item--name"
+          :href="item.url"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {{ item.name || item.url }}
+        </a>
+        <button v-if="!disabled" type="button" class="wf-upload-file__item--remove" @click="onRemove(index)">
+          删除
+        </button>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'upload',
-    props: {
-        fileList: {
-            type: Array,
-            default: () => [],
-        },
-        limit: {
-            type: Number,
-            default: Number.MAX_VALUE,
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
+  name: 'upload',
+  props: {
+    fileList: {
+      type: Array,
+      default: () => []
     },
-    methods: {
-        // 判断是否为图片
-        isImageUrl(url) {
-            const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|svg)$/i;
-            return imageExtensions.test(url);
-        },
-        handleChooseFile() {
-            const chooseFileMethod = new Promise((resolve) => {
-                // #ifndef MP
-                resolve('chooseImage');
-                // #endif
-                // #ifdef MP
-                uni.showModal({
-                    title: '选择文件',
-                    content: '请选择文件来源',
-                    confirmText: '聊天记录',
-                    cancelText: '系统相册',
-                    success: (res) => {
-                        if (res.confirm) resolve('chooseMessageFile');
-                        else resolve('chooseMedia');
-                    },
-                });
-                // #endif
-            });
-            chooseFileMethod.then((method) => {
-                uni[method]({
-                    success: (res) => {
-                        const { tempFiles } = res;
-                        if (tempFiles.length + this.fileList.length > this.limit) {
-                            uni.showToast({
-                                title: `超出数量限制：${this.limit}`,
-                                icon: 'none',
-                            });
-                            return;
-                        }
-                        this.$emit('choose', tempFiles);
-                    },
-                });
-            });
-        },
-
-        handleAttachments(item) {
-            const { url } = item;
-            const suffix = url.substring(url.lastIndexOf('.') + 1);
-            const imageList = ['jpg', 'png', 'jpeg', 'gif', 'webp', 'bmp'];
-            const documentList = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'];
-            // 图片
-            if (imageList.includes(suffix)) {
-                uni.previewImage({
-                    urls: [url],
-                });
-            }
-            // 文档
-            else if (documentList.includes(suffix)) {
-                // #ifdef H5
-                window.open(url);
-                // #endif
-                // #ifndef H5
-                uni.downloadFile({
-                    url,
-                    success: (res) => {
-                        const filePath = res.tempFilePath;
-                        uni.openDocument({
-                            filePath,
-                            fileType: suffix,
-                        });
-                    },
-                });
-                // #endif
-            }
-            // 其他
-            else
-                uni.showToast({
-                    title: `当前类型${suffix}不支持在移动端展示`,
-                    icon: 'none',
-                });
-        },
-        onRemove(index) {
-            uni.showModal({
-                title: '警告',
-                content: '确定要删除此项吗？',
-                success: (res) => {
-                    if (res.confirm) {
-                        this.$emit('remove', index);
-                    }
-                },
-            });
-        },
+    limit: {
+      type: Number,
+      default: Number.MAX_VALUE
     },
-};
+    disabled: {
+      type: Boolean,
+      default: false
+    }
+  },
+  computed: {
+    multiple() {
+      return this.limit > 1
+    }
+  },
+  methods: {
+    isImageUrl(url) {
+      const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i
+      return imageExtensions.test(url || '')
+    },
+    triggerFileSelect() {
+      this.$refs.fileInput?.click()
+    },
+    handleFileChange(event) {
+      const files = Array.from(event.target.files || [])
+      if (!files.length) return
+      if (files.length + this.fileList.length > this.limit) {
+        event.target.value = ''
+        return
+      }
+      this.$emit('choose', files)
+      event.target.value = ''
+    },
+    preview(url) {
+      if (!url) return
+      window.open(url, '_blank')
+    },
+    onRemove(index) {
+      this.$emit('remove', index)
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
 .img-icon {
-    width: 70rpx;
-    height: 70rpx;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
 }
-.wf-upload-file__item {
-    padding-right: 32rpx;
-    box-sizing: border-box;
-}
+
 .wf-upload {
-    width: 100%;
-    overflow: hidden;
+  width: 100%;
+  overflow: hidden;
+}
 
-    &-button {
-        width: 100%;
-        height: 60rpx;
-    }
+.wf-upload-button {
+  margin-bottom: 8px;
+}
 
-    &-file {
-        width: 690rpx;
-        overflow: hidden;
+.wf-upload-button__trigger {
+  padding: 6px 12px;
+  background-color: #409eff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-        &__item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+.wf-upload-button__input {
+  display: none;
+}
 
-            &--name {
-                flex: 1;
-                margin-right: 16rpx;
-                color: rgb(41, 121, 255);
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-        }
-    }
+.wf-upload-file {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.wf-upload-file__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.wf-upload-file__item--name {
+  color: #2979ff;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-upload-file__item--remove {
+  border: none;
+  background: transparent;
+  color: #f56c6c;
+  cursor: pointer;
 }
 </style>
