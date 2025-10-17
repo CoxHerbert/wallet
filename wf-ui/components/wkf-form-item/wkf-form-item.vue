@@ -1,5 +1,5 @@
 <template>
-    <view class="wf-form-item">
+    <div class="wf-form-item">
         <u-form-item
             :label="column.label ? column.label + '：' : ''"
             :prop="column.prop"
@@ -112,7 +112,6 @@
                 :disabled="disabled"
                 :dynamic-index="dynamicIndex"
             ></wf-sign>
-            <!-- #ifdef H5 -->
             <component
                 v-if="column.component"
                 :is="column.component"
@@ -123,9 +122,8 @@
                 :disabled="disabled"
                 :dynamic-index="dynamicIndex"
             ></component>
-            <!-- #endif -->
         </u-form-item>
-    </view>
+    </div>
 </template>
 
 <script>

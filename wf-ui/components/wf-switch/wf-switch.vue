@@ -1,5 +1,5 @@
 <template>
-	<view class="wf-switch">
+	<div class="wf-switch">
                 <van-switch
                         v-model="checked"
                         :active-value="activeValue"
@@ -8,7 +8,7 @@
                         :disabled="disabled"
                         @change="onChange"
                 ></van-switch>
-	</view>
+	</div>
 </template>
 
 <script>

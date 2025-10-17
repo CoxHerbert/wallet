@@ -1,5 +1,5 @@
 <template>
-    <view class="wf-form-item">
+    <div class="wf-form-item">
         <u-form-item
             :label="column.label ? column.label + '：' : ''"
             :prop="column.prop"
@@ -123,7 +123,6 @@
                 :disabled="disabled"
                 :dynamic-index="dynamicIndex"
             ></wf-sign>
-            <!-- #ifdef H5-->
             <!-- <component
                 v-if="!column.type && column.component"
                 :is="column.component"
@@ -134,7 +133,6 @@
                 :disabled="disabled"
                 :dynamic-index="dynamicIndex"
             ></component> -->
-            <!-- #endif -->
 
             <WkfUserSelect
                 v-else-if="'wf-user-select' == column.component"
@@ -190,7 +188,7 @@
             </template>
             <WfFeasibility v-if="column.component === 'wf-feasibility'" v-model="text"> </WfFeasibility>
         </u-form-item>
-    </view>
+    </div>
 </template>
 
 <script>

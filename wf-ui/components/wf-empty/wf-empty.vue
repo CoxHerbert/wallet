@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import { getSystemInfoSync } from '../../util/uniCompat.js'
 export default {
 	name: 'wf-empty',
 	props: {
@@ -49,7 +50,7 @@ export default {
                 }
         },
         created() {
-                const info = uni.getSystemInfoSync?.() || {}
+                const info = getSystemInfoSync?.() || {}
                 const screenHeight = info.screenHeight
                 if (!this.marginTop && screenHeight) {
                         this.marginTOP = screenHeight / 2.5

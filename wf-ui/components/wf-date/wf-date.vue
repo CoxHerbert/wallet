@@ -1,6 +1,6 @@
 <template>
-	<view class="wf-date">
-		<block v-if="[1, 2, 3, 4].includes(type)">
+	<div class="wf-date">
+		<template v-if="[1, 2, 3, 4].includes(type)">
 			<div class="wf-date__field" @click="handleShowSelect">
 				<u-field
 					v-model="date"
@@ -25,10 +25,10 @@
 				@change="onChange"
 				@clear="onClear"
 			></calendar>
-		</block>
+		</template>
 
-		<block v-if="[5, 6].includes(type)">
-			<view class="wf-date-time">
+		<template v-if="[5, 6].includes(type)">
+			<div class="wf-date-time">
 				<div class="wf-date-time__start" @click="handleShowSelect('initStartDate')">
 					<u-field
 						v-model="initStartDate"
@@ -45,7 +45,7 @@
 					</u-field>
 				</div>
 				
-				<block v-if="type == 6">
+				<template v-if="type == 6">
 					至
 					<div class="wf-date-time__end" @click="handleShowSelect('initStartDate')">
 						<u-field
@@ -58,8 +58,8 @@
 							:input-align="type == 5 ? 'left' : 'center'"
 						></u-field>
 					</div>
-				</block>
-			</view>
+				</template>
+			</div>
 			<u-picker
 				v-model="showTime"
 				mode="time"
@@ -71,8 +71,8 @@
 				@confirm="onConfirm"
 				@cancel="onClear"
 			></u-picker>
-		</block>
-	</view>
+		</template>
+	</div>
 </template>
 
 <script>

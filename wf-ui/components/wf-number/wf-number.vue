@@ -1,5 +1,5 @@
 <template>
-	<view class="wf-number">
+	<div class="wf-number">
                 <van-stepper
                         v-model="number"
                         :min="column.min || 0"
@@ -11,7 +11,7 @@
                         @focus="handleFocus"
                         @blur="handleBlur"
                 ></van-stepper>
-	</view>
+	</div>
 </template>
 
 <script>

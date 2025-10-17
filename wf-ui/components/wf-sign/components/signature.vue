@@ -1,21 +1,22 @@
 <template>
 	<u-popup safe-area-inset-bottom border-radius="25" closeable mode="bottom" v-model="show">
 		<div class="container">
-			<view class="title">签名</view>
-			<view class="handCenter" :style="getStyle">
+			<div class="title">签名</div>
+			<div class="handCenter" :style="getStyle">
 				<canvas v-if="show" class="hand-writing" disable-scroll @touchstart="uploadScaleStart" @touchmove="uploadScaleMove" @touchend="uploadScaleEnd" :id="canvasId" :canvas-id="canvasId"></canvas>
-			</view>
-			<view class="buttons">
+			</div>
+			<div class="buttons">
 				<span class="button button_rewrite" @click="rewrite">重签</span>
 				<span class="button button_submit" @click="submit">提交</span>
-			</view>
+			</div>
 		</div>
 		<u-toast ref="uToast" />
 	</u-popup>
 </template>
 
 <script>
-	import Handwriting from './signature.js';
+        import { createSelectorQuery, createCanvasContext, canvasToTempFilePath } from '../../../util/uniCompat.js';
+        import Handwriting from './signature.js';
 	export default {
 		data() {
 			return {
@@ -51,8 +52,8 @@
 					this.reject = reject;
 
 					this.$nextTick(() => {
-						let query = uni.createSelectorQuery().in(this);
-						let ctx = uni.createCanvasContext(`${this.canvasId}`, this);
+                                                let query = createSelectorQuery().in(this);
+                                                let ctx = createCanvasContext(`${this.canvasId}`, this);
 						
 						this.handwriting = new Handwriting({
 							lineColor: color,
@@ -87,30 +88,30 @@
 					});
 				}
 
-				uni.canvasToTempFilePath({
-						canvasId: this.canvasId,
-						quality: 1.0,
-						fileType: 'png',
+                                canvasToTempFilePath({
+                                                canvasId: this.canvasId,
+                                                quality: 1.0,
+                                                fileType: 'png',
 
-						success(res) {
-							// self.resolve(res);
-							let path = res.tempFilePath;
-							self.reject = null;
-							self.resolve(path);
-						},
-						fail(err) {
-							let reject = self.reject;
-							self.reject = null;
-							reject({ type: 'err', err: err });
-						},
-						complete() {
-							// 失败关闭吧
-							self.show = false;
-						}
-					},
-					this
-				);
-			},
+                                                success(res) {
+                                                        // self.resolve(res);
+                                                        let path = res.tempFilePath;
+                                                        self.reject = null;
+                                                        self.resolve(path);
+                                                },
+                                                fail(err) {
+                                                        let reject = self.reject;
+                                                        self.reject = null;
+                                                        reject({ type: 'err', err: err });
+                                                },
+                                                complete() {
+                                                        // 失败关闭吧
+                                                        self.show = false;
+                                                }
+                                        },
+                                        this
+                                );
+                        },
 			uploadScaleStart(event) {
 				this.handwriting.uploadScaleStart(event);
 			},

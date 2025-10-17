@@ -1,10 +1,10 @@
 <template>
-    <view class="wf-upload">
-        <view class="wf-upload-button" v-if="!disabled && fileList.length < limit">
+    <div class="wf-upload">
+        <div class="wf-upload-button" v-if="!disabled && fileList.length < limit">
             <van-button type="primary" size="small" block @click="handleChooseFile">点击上传</van-button>
-        </view>
-        <view class="wf-upload-file">
-            <view v-for="(item, index) in fileList" :key="index" class="wf-upload-file__item">
+        </div>
+        <div class="wf-upload-file">
+            <div v-for="(item, index) in fileList" :key="index" class="wf-upload-file__item">
                 <img
                     v-if="isImageUrl(item.url)"
                     :src="item.url"
@@ -15,15 +15,17 @@
                 <span v-else class="wf-upload-file__item--name" @click="handleAttachments(item)">{{
                     item.name || item.url
                 }}</span>
-                <view v-if="!disabled" class="wf-upload-file__item--icon" @click="onRemove(index)">
+                <div v-if="!disabled" class="wf-upload-file__item--icon" @click="onRemove(index)">
                     <van-icon name="cross" />
-                </view>
-            </view>
-        </view>
-    </view>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
+import { showModal, showToast, previewImage, chooseMessageFile } from '../../../util/uniCompat.js';
+
 export default {
     name: 'upload',
     props: {
@@ -47,37 +49,17 @@ export default {
             return imageExtensions.test(url);
         },
         handleChooseFile() {
-            const chooseFileMethod = new Promise((resolve) => {
-                // #ifndef MP
-                resolve('chooseImage');
-                // #endif
-                // #ifdef MP
-                uni.showModal({
-                    title: '选择文件',
-                    content: '请选择文件来源',
-                    confirmText: '聊天记录',
-                    cancelText: '系统相册',
-                    success: (res) => {
-                        if (res.confirm) resolve('chooseMessageFile');
-                        else resolve('chooseMedia');
-                    },
-                });
-                // #endif
-            });
-            chooseFileMethod.then((method) => {
-                uni[method]({
-                    success: (res) => {
-                        const { tempFiles } = res;
-                        if (tempFiles.length + this.fileList.length > this.limit) {
-                            uni.showToast({
-                                title: `超出数量限制：${this.limit}`,
-                                icon: 'none',
-                            });
-                            return;
-                        }
-                        this.$emit('choose', tempFiles);
-                    },
-                });
+            chooseMessageFile({
+                success: ({ tempFiles }) => {
+                    if (tempFiles.length + this.fileList.length > this.limit) {
+                        showToast({
+                            title: `超出数量限制：${this.limit}`,
+                            icon: 'none',
+                        });
+                        return;
+                    }
+                    this.$emit('choose', tempFiles);
+                },
             });
         },
 
@@ -88,37 +70,24 @@ export default {
             const documentList = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf'];
             // 图片
             if (imageList.includes(suffix)) {
-                uni.previewImage({
+                previewImage({
                     urls: [url],
                 });
             }
             // 文档
             else if (documentList.includes(suffix)) {
-                // #ifdef H5
                 window.open(url);
-                // #endif
-                // #ifndef H5
-                uni.downloadFile({
-                    url,
-                    success: (res) => {
-                        const filePath = res.tempFilePath;
-                        uni.openDocument({
-                            filePath,
-                            fileType: suffix,
-                        });
-                    },
-                });
-                // #endif
             }
             // 其他
-            else
-                uni.showToast({
+            else {
+                showToast({
                     title: `当前类型${suffix}不支持在移动端展示`,
                     icon: 'none',
                 });
+            }
         },
         onRemove(index) {
-            uni.showModal({
+            showModal({
                 title: '警告',
                 content: '确定要删除此项吗？',
                 success: (res) => {

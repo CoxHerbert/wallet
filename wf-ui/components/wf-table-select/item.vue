@@ -1,5 +1,5 @@
 <template>
-    <view class="wf-table-select__content--item">
+    <div class="wf-table-select__content--item">
         <label>
             <checkbox
                 v-if="multiple"
@@ -13,10 +13,10 @@
                 :value="item[valueKey]"
                 :checked="Array.from(selectionList).findIndex((s) => s[valueKey] == item[valueKey]) > -1"
             ></radio>
-            <view class="row">
-                <view class="row-item" v-for="(col, cIndex) in cColumn" :key="cIndex">
-                    <view class="row-label" v-if="col.prop != 'avatar'">{{ col.label }}:</view>
-                    <view class="row-value" v-if="col.prop != 'avatar'">{{ item[col.prop] }}</view>
+            <div class="row">
+                <div class="row-item" v-for="(col, cIndex) in cColumn" :key="cIndex">
+                    <div class="row-label" v-if="col.prop != 'avatar'">{{ col.label }}:</div>
+                    <div class="row-value" v-if="col.prop != 'avatar'">{{ item[col.prop] }}</div>
 
                     <!-- <img
                         v-if="col.prop != 'avatar' && item[col.prop]"
@@ -24,18 +24,18 @@
                         mode="scaleToFill"
                         class="img"
                     ></img> -->
-                </view>
-            </view>
+                </div>
+            </div>
         </label>
-        <view
+        <div
             style="min-width: 50rpx"
             v-if="item[childrenKey] || item[hasChildrenKey]"
             @click="handleRowExpand(item, index)"
         >
             <u-icon name="arrow-up" v-if="arrowKeys.includes(item[valueKey])"></u-icon>
             <u-icon name="arrow-down" v-else></u-icon>
-        </view>
-    </view>
+        </div>
+    </div>
 </template>
 
 <script>

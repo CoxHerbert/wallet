@@ -1,5 +1,5 @@
 <template>
-        <view class="wf-checkbox">
+        <div class="wf-checkbox">
                 <van-checkbox-group v-model="text" :disabled="disabled" @click="handleClick">
                         <van-checkbox
                                 v-for="(item, index) in list"
@@ -10,7 +10,7 @@
                                 {{ item[labelKey] }}
                         </van-checkbox>
                 </van-checkbox-group>
-        </view>
+        </div>
 </template>
 
 <script>

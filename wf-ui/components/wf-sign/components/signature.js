@@ -45,7 +45,7 @@ class Handwriting {
 	// 笔迹开始
 	uploadScaleStart(event) {
 		// console.log('start');
-		let e = event.mp
+                let e = event.mp || event
 		// console.log(e.touches[0])
 		if (e.type != 'touchstart') return false;
 
@@ -75,7 +75,7 @@ class Handwriting {
 	// 笔迹移动
 	uploadScaleMove(event) {
 		// console.log('move');
-		let e = event.mp
+                let e = event.mp || event
 		if (e.type != 'touchmove') return false;
 		if (e.cancelable) {
 			// 判断默认行为是否已经被禁用
@@ -122,7 +122,7 @@ class Handwriting {
 	}
 	// 笔迹结束
 	uploadScaleEnd(event) {
-		let e = event.mp
+                let e = event.mp || event
 		if (e.type != 'touchend') return 0;
 		// console.log(e);
 		let point = {

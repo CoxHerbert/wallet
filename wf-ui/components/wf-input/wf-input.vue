@@ -1,5 +1,5 @@
 <template>
-	<view class="wf-input">
+        <div class="wf-input">
                 <van-field
                         v-model="text"
                         :type="typeDic[column.type]"
@@ -13,7 +13,7 @@
                         @focus="handleFocus"
                         @blur="handleBlur"
                 />
-	</view>
+        </div>
 </template>
 
 <script>

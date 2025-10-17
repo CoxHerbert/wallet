@@ -1,5 +1,5 @@
 <template>
-	<view class="wf-cascader">
+	<div class="wf-cascader">
 		<u-input
 			v-model="textLabel"
 			type="select"
@@ -9,7 +9,7 @@
 		<u-popup v-model="show" mode="bottom" close-icon="close-circle" closeable>
 			<cascader :props="column.props" :itemList="dic" :title="column.label" @complete="onConfirm"></cascader>
 		</u-popup>
-	</view>
+	</div>
 </template>
 
 <script>

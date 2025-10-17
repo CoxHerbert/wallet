@@ -1,5 +1,5 @@
 <template>
-	<view class="wf-slider">
+	<div class="wf-slider">
                 <van-slider
                         v-model="sliderValue"
                         :max="column.max || 100"
@@ -10,7 +10,7 @@
                         @change="onChange"
                 ></van-slider>
 		<span class="wf-slider__text">{{ showText }}</span>
-	</view>
+	</div>
 </template>
 
 <script>

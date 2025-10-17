@@ -1,11 +1,12 @@
 <template>
-	<view class="wf-map">
+	<div class="wf-map">
 		<u-input v-model="address" :placeholder="getPlaceholder(column)" type="text" disabled @click="onClick"></u-input>
-	</view>
+	</div>
 </template>
 
 <script>
 import Props from '../../mixins/props.js'
+import { on, navigateTo } from '../../util/uniCompat.js'
 export default {
 	name: 'wf-map',
 	mixins: [Props],
@@ -17,9 +18,9 @@ export default {
 		}
 	},
 	mounted() {
-		uni.$on(`${this.mapId}`, res => {
-			this.text = res
-		})
+                on(`${this.mapId}`, res => {
+                        this.text = res
+                })
 		setTimeout(() => {
 			this.show = true
 		}, 1000)
@@ -33,10 +34,10 @@ export default {
 		},
 		onClick() {
 			if (this.disabled) return
-			uni.navigateTo({
-				url: `/components/wf-ui/components/wf-map/components/map?mapId=${this.mapId}&val=${this.text + ''}`
-			})
-		}
+                        navigateTo({
+                                url: `/components/wf-ui/components/wf-map/components/map?mapId=${this.mapId}&val=${this.text + ''}`
+                        })
+                }
 	}
 }
 </script>

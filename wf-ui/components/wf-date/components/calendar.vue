@@ -1,60 +1,60 @@
 <template>
-	<view class="wf-calendar">
-		<view :class="{ 'wf-bottom-popup': isFixed, 'wf-popup-show': isShow && isFixed }">
-			<view class="wf-calendar-header" :class="{ 'wf-calendar-radius': radius }" @touchmove.stop.prevent="stop" v-if="isFixed">
-				<view>日期选择</view>
-				<view class="wf-iconfont wf-font-close" hover-class="wf-opacity" :hover-stay-time="150" @tap="hide"></view>
-			</view>
+	<div class="wf-calendar">
+		<div :class="{ 'wf-bottom-popup': isFixed, 'wf-popup-show': isShow && isFixed }">
+			<div class="wf-calendar-header" :class="{ 'wf-calendar-radius': radius }" @touchmove.stop.prevent="stop" v-if="isFixed">
+				<div>日期选择</div>
+				<div class="wf-iconfont wf-font-close" hover-class="wf-opacity" :hover-stay-time="150" @click="hide"></div>
+			</div>
 
-			<view class="wf-date-box">
-				<view
+			<div class="wf-date-box">
+				<div
 					class="wf-iconfont wf-font-arrowleft"
 					:style="{ color: yearArrowColor }"
 					hover-class="wf-opacity"
 					:hover-stay-time="150"
 					v-if="arrowType == 1"
-					@tap="changeYear(0)"
-				></view>
-				<view
+					@click="changeYear(0)"
+				></div>
+				<div
 					class="wf-iconfont wf-font-arrowleft"
 					:style="{ color: monthArrowColor }"
 					hover-class="wf-opacity"
 					:hover-stay-time="150"
-					@tap="changeMonth(0)"
-				></view>
-				<view class="wf-date_time">{{ showTitle }}</view>
-				<view
+					@click="changeMonth(0)"
+				></div>
+				<div class="wf-date_time">{{ showTitle }}</div>
+				<div
 					class="wf-iconfont wf-font-arrowright"
 					:style="{ color: monthArrowColor }"
 					hover-class="wf-opacity"
 					:hover-stay-time="150"
-					@tap="changeMonth(1)"
-				></view>
-				<view
+					@click="changeMonth(1)"
+				></div>
+				<div
 					class="wf-iconfont wf-font-arrowright"
 					:style="{ color: yearArrowColor }"
 					hover-class="wf-opacity"
 					:hover-stay-time="150"
 					v-if="arrowType == 1"
-					@tap="changeYear(1)"
-				></view>
-			</view>
-			<view class="wf-date-header">
-				<view class="wf-date">日</view>
-				<view class="wf-date">一</view>
-				<view class="wf-date">二</view>
-				<view class="wf-date">三</view>
-				<view class="wf-date">四</view>
-				<view class="wf-date">五</view>
-				<view class="wf-date">六</view>
-			</view>
-			<view
+					@click="changeYear(1)"
+				></div>
+			</div>
+			<div class="wf-date-header">
+				<div class="wf-date">日</div>
+				<div class="wf-date">一</div>
+				<div class="wf-date">二</div>
+				<div class="wf-date">三</div>
+				<div class="wf-date">四</div>
+				<div class="wf-date">五</div>
+				<div class="wf-date">六</div>
+			</div>
+			<div
 				class="wf-date-content"
 				:class="{ 'wf-flex-start': isFixed && fixedHeight }"
 				:style="{ height: isFixed && fixedHeight ? dateHeight * 7.5 + 'px' : 'auto' }"
 			>
-				<block v-for="(item, index) in weekdayArr" :key="index"><view class="wf-date"></view></block>
-				<view
+				<template v-for="(item, index) in weekdayArr" :key="index"><div class="wf-date"></div></template>
+				<div
 					class="wf-date"
 					:class="{
 						'wf-date-pd_0': isFixed && fixedHeight,
@@ -68,35 +68,35 @@
 					}"
 					v-for="(item, index) in daysArr"
 					:key="index"
-					@tap="dateClick(index)"
+					@click="dateClick(index)"
 				>
-					<view
+					<div
 						class="wf-date-text"
 						:style="{ color: isFixed ? getColor(index, 2) : getStatusData(3, index), backgroundColor: getStatusData(2, index) }"
 					>
-						<view v-if="isFixed || !getStatusData(4, index)">{{ index + 1 }}</view>
-						<view v-if="!getStatusData(4, index)" class="wf-custom-desc" :class="{ 'wf-lunar-unshow': !lunar && isFixed }">
+						<div v-if="isFixed || !getStatusData(4, index)">{{ index + 1 }}</div>
+						<div v-if="!getStatusData(4, index)" class="wf-custom-desc" :class="{ 'wf-lunar-unshow': !lunar && isFixed }">
 							{{ getDescText(index, startDate, endDate) }}
-						</view>
-						<text class="wf-iconfont wf-font-check" v-if="getStatusData(4, index)"></text>
-					</view>
-					<view
+						</div>
+						<span class="wf-iconfont wf-font-check" v-if="getStatusData(4, index)"></span>
+					</div>
+					<div
 						class="wf-date-desc"
 						:style="{ color: activeColor }"
 						v-if="!lunar && [2, 4].includes(type) && startDate == `${year}-${month}-${index + 1}` && startDate != endDate"
 					>
 						{{ startText }}
-					</view>
-					<view
+					</div>
+					<div
 						class="wf-date-desc"
 						:style="{ color: activeColor }"
 						v-if="!lunar && [2, 4].includes(type) && endDate == `${year}-${month}-${index + 1}`"
 					>
 						{{ endText }}
-					</view>
-				</view>
-				<view class="wf-bg-month">{{ month }}</view>
-				<view v-if="(type == 3 && (activeDate || startDate)) || (type == 4 && endDate)" class="wf-date-time">
+					</div>
+				</div>
+				<div class="wf-bg-month">{{ month }}</div>
+				<div v-if="(type == 3 && (activeDate || startDate)) || (type == 4 && endDate)" class="wf-date-time">
 					<div class="wf-date-time__start" @click="handleTimeShow('startTime')">
 						<u-field
 							v-model="startTime"
@@ -109,7 +109,7 @@
 						></u-field>
 					</div>
 					
-					<block v-if="endDate">
+					<template v-if="endDate">
 						至
 						<div class="wf-date-time__end" @click="handleTimeShow('endTime')">
 							<u-field
@@ -122,16 +122,16 @@
 								placeholder="结束时间"
 							></u-field>
 						</div>
-					</block>
-				</view>
-			</view>
+					</template>
+				</div>
+			</div>
 
-			<view class="wf-calendar-op" v-if="isFixed" @touchmove.stop.prevent="stop">
-				<view v-if="![3, 4].includes(type)" class="wf-calendar-result">
-					<text>{{ [1, 3].includes(type) ? activeDate : startDate }}</text>
-					<text v-if="endDate">至 {{ endDate }}</text>
-				</view>
-				<view class="wf-calendar-btn_box">
+			<div class="wf-calendar-op" v-if="isFixed" @touchmove.stop.prevent="stop">
+				<div v-if="![3, 4].includes(type)" class="wf-calendar-result">
+					<span>{{ [1, 3].includes(type) ? activeDate : startDate }}</span>
+					<span v-if="endDate">至 {{ endDate }}</span>
+				</div>
+				<div class="wf-calendar-btn_box">
 					<u-button
 						:custom-style="{ width: '49%', float: 'left', marginRight: '2%' }"
 						type="error"
@@ -150,17 +150,17 @@
 					>
 						确定
 					</u-button>
-				</view>
-			</view>
-		</view>
+				</div>
+			</div>
+		</div>
 
-		<view
+		<div
 			class="wf-popup-mask"
 			:class="[isShow ? 'wf-mask-show' : '']"
 			@touchmove.stop.prevent="stop"
 			v-if="isFixed"
-			@tap="hide"
-		></view>
+			@click="hide"
+		></div>
 
 		<u-picker
 			mode="time"
@@ -171,9 +171,10 @@
 			@confirm="handleTimeConfirm"
 			@cancel="handleTimeCancel"
 		></u-picker>
-	</view>
+	</div>
 </template>
 <script>
+import { getSystemInfoSync, showToast } from '../../../util/uniCompat.js'
 const calendar = require('./calendar.js')
 export default {
 	name: 'wfCalendar',
@@ -475,7 +476,7 @@ export default {
 		},
 		initDateHeight() {
 			if (this.fixedHeight && this.isFixed) {
-				this.dateHeight = uni.getSystemInfoSync().windowWidth / 7
+				this.dateHeight = getSystemInfoSync().windowWidth / 7
 			}
 		},
 		init() {
@@ -576,7 +577,7 @@ export default {
 		checkRange(year) {
 			let overstep = false
 			if (year < this.minYear || year > this.maxYear) {
-				uni.showToast({
+				showToast({
 					title: '日期超出范围啦~',
 					icon: 'none'
 				})
@@ -684,7 +685,7 @@ export default {
 
 				if (this.type == 3) {
 					if (!this.startTime) {
-						uni.showToast({
+						showToast({
 							title: '请选择时间',
 							icon: 'none'
 						})
@@ -705,7 +706,7 @@ export default {
 				})
 			} else {
 				if (!this.startDate || !this.endDate) {
-					uni.showToast({
+					showToast({
 						title: '请选择范围日期',
 						icon: 'none'
 					})
@@ -726,7 +727,7 @@ export default {
 				let result = [startDate, endDate]
 				if (this.type == 4) {
 					if (!this.startTime) {
-						uni.showToast({
+						showToast({
 							title: '请选择开始时间',
 							icon: 'none'
 						})
@@ -735,7 +736,7 @@ export default {
 					startDate = startDate + ' ' + this.startTime
 
 					if (!this.endTime) {
-						uni.showToast({
+						showToast({
 							title: '请选择结束时间',
 							icon: 'none'
 						})

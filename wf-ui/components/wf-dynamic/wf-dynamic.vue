@@ -1,20 +1,20 @@
 <template>
-	<view class="wf-dynamic">
+	<div class="wf-dynamic">
 		<u-card
 			:head-style="{ padding: '16rpx 30rpx' }"
 			:body-style="{ padding: 0 }"
 			margin="0 0 30rpx 0"
 			v-if="text && text.length == 0"
 		>
-			<view class="head" slot="head">
-				<view class="title">#1</view>
-				<view class="add-btn" @click="handleAddRow" v-if="option.addBtn && !disabled">
+			<div class="head" slot="head">
+				<div class="title">#1</div>
+				<div class="add-btn" @click="handleAddRow" v-if="option.addBtn && !disabled">
 					<u-icon name="plus"></u-icon>
-					<text>添加</text>
-				</view>
-			</view>
+					<span>添加</span>
+				</div>
+			</div>
 		</u-card>
-		<block v-for="(item, index) in text" :key="index" v-else>
+		<template v-for="(item, index) in text" :key="index" v-else>
 			<u-card
 				:head-style="{ padding: '16rpx 30rpx' }"
 				:body-style="{ padding: 0 }"
@@ -22,32 +22,22 @@
 				:key="index"
 				margin="0 0 30rpx 0"
 			>
-				<view class="head" slot="head">
-					<view class="title">#{{ index + 1 }}</view>
-					<view class="add-btn" @click="handleAddRow" v-if="option.addBtn && !disabled">
+				<div class="head" slot="head">
+					<div class="title">#{{ index + 1 }}</div>
+					<div class="add-btn" @click="handleAddRow" v-if="option.addBtn && !disabled">
 						<u-icon name="plus"></u-icon>
-						<text>添加</text>
-					</view>
-				</view>
-				<view slot="body">
-					<!-- #ifdef MP -->
-					<wf-form
-						ref="main"
-						v-model="text[index]"
-						:option="{ labelPosition: 'top', disabled: disabled, dynamicIndex: index, ...option }"
-						@label-change="handleLabelChange"
-					></wf-form>
-					<!-- #endif -->
-					<!-- #ifndef MP -->
-					<wkf-form
-						ref="main"
-						v-model="text[index]"
-						:option="{ labelPosition: 'top', disabled: disabled, dynamicIndex: index, ...option }"
-						@label-change="handleLabelChange"
-					></wkf-form>
-					<!-- #endif -->
-				</view>
-				<view class="head" slot="foot" v-if="!disabled">
+						<span>添加</span>
+					</div>
+				</div>
+                                <div slot="body">
+                                        <wkf-form
+                                                ref="main"
+                                                v-model="text[index]"
+                                                :option="{ labelPosition: 'top', disabled: disabled, dynamicIndex: index, ...option }"
+                                                @label-change="handleLabelChange"
+                                        ></wkf-form>
+                                </div>
+				<div class="head" slot="foot" v-if="!disabled">
 					<u-button
 						v-if="option.addBtn"
 						plain
@@ -68,10 +58,10 @@
 					>
 						删 除
 					</u-button>
-				</view>
+				</div>
 			</u-card>
-		</block>
-	</view>
+		</template>
+	</div>
 </template>
 
 <script>
