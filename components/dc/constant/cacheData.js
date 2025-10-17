@@ -1,33 +1,93 @@
 import Api from '@/api/index';
 import http from '@/http/api.js';
 
-const getProcessModelList = (params) => {
-    return new Promise((resolve, reject) => {
-        http.request({
-            url: '/api/blade-workflow/design/model/list',
-            method: 'get',
-            params,
-        })
-            .then((res) => {
-                const { code, data } = res.data;
-                if (code === 200) {
-                    res.data.data.records = res.data.data.records.map((row) => {
-                        return {
-                            ...row,
-                            id: row.modelKey,
-                            id_: row.id,
-                        };
-                    });
-                    resolve(res);
-                } else {
-                    reject(res);
-                }
+const createDialogRequest = ({ url, method = 'get', payloadKey, transformResponse }) => {
+    const normalizedMethod = method.toLowerCase();
+    const requestPayloadKey = payloadKey || (normalizedMethod === 'get' ? 'params' : 'data');
+
+    return (payload) =>
+        new Promise((resolve, reject) => {
+            http.request({
+                url,
+                method: normalizedMethod,
+                [requestPayloadKey]: payload,
             })
-            .catch((error) => {
-                reject(error);
-            });
-    });
+                .then((res) => {
+                    if (res?.data?.code === 200) {
+                        const processed = transformResponse ? transformResponse(res) : res;
+                        resolve(processed);
+                    } else {
+                        reject(res);
+                    }
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
 };
+
+const createGetRequest = (url, transformResponse) =>
+    createDialogRequest({ url, method: 'get', transformResponse });
+
+const getProcessModelList = createGetRequest(
+    '/api/blade-workflow/design/model/list',
+    (res) => {
+        const records = res?.data?.data?.records;
+        if (Array.isArray(records)) {
+            res.data.data.records = records.map((row) => ({
+                ...row,
+                id: row.modelKey,
+                id_: row.id,
+            }));
+        }
+
+        return res;
+    },
+);
+
+const getScmPurchaseRequestList = createGetRequest('/api/blade-bip/ScmPurchaseRequest/list');
+const getScmSupplierList = createGetRequest('/api/blade-bip/ScmSupplier/list');
+const getSipOrderMaterialList = createGetRequest('/api/blade-bip/SipOrder/mto-material-query');
+const getSnMaterialSearchList = createGetRequest('/api/blade-pda/common/material-search');
+const getErpSelectMaterials = createGetRequest('/api/blade-bip/dc/erp/select/materials');
+const getScmMaterialList = createGetRequest('/api/blade-bip/ScmMaterial/list');
+const getDeliveredItemList = createGetRequest('/api/blade-bip/delivered-item/list');
+const getScmOrgList = createGetRequest('/api/blade-bip/ScmOrg/list');
+const getProjectSettingList = createGetRequest('/api/blade-bip/dc-pdp-func-user-config/list');
+const getDcFeaList = createGetRequest('/api/blade-bip/dc-fea/list');
+const getCustomerList = createGetRequest('/api/blade-bip/customer/list');
+const getSystemUserList = createGetRequest('/api/blade-system/user/page');
+const getSystemDeptList = createGetRequest('/api/blade-system/dept/list');
+const getCustomerContactsList = createGetRequest('/api/blade-bip/customer-contacts/list');
+const getFoundryList = createGetRequest('/api/blade-bip/foundry/list');
+const getOppsList = createGetRequest('/api/blade-bip/opps/list');
+const getProjectList = createGetRequest('/api/blade-bip/project/list');
+const getProjectDeliveredList = createGetRequest('/api/blade-bip/delivered/find-project-delivered');
+const getMmrProjectConfigList = createGetRequest('/api/blade-bip/mmr-project-config/list');
+const getProjectVoList = createGetRequest('/api/blade-bip/project/find-project-vo');
+const getWarehouseKeeperList = createGetRequest('/api/blade-bip/dc-erp-warehouse-keeper/list');
+const getMmrStationConfigList = createGetRequest('/api/blade-bip/mmr-station-config/list');
+const getPlanItemList = createGetRequest('/api/blade-bip/plan-item/list');
+const getCustomerRlist = createGetRequest('/api/blade-bip/customer-rlist/list');
+const getScmPurchaseOrderList = createGetRequest('/api/blade-bip/ScmPurchaseOrder/list');
+const getWarehouseSupperList = createGetRequest(
+    '/api/blade-bip/scm-in-stock-detail/find-po-detail-by-supplier-id',
+);
+const getWarehouseList = createGetRequest('/api/blade-bip/dc-wms-warehouse/list');
+const getWarehouseLocationList = createGetRequest('/api/blade-bip/dc-wms-warehouse-location/list');
+const getWmsCommonList = createGetRequest('/api/blade-bip/dc-wms-common/list');
+const getCargoOwnerList = createGetRequest('/api/blade-bip/dc-wms-cargo-owner/list');
+const getMmrPlanOrderList = createGetRequest('/api/blade-bip/mmr-plan-order/list');
+const getCrmCustomerAreaList = createGetRequest('/api/blade-bip/CrmCustomerArea/list');
+const getErpFeignList = createGetRequest('/api/blade-erp/feign/client/mtono/list');
+const getWireBomList = createGetRequest('/api/blade-bip/WireBom/bom-list');
+const getMaterialSearchV2 = createGetRequest('/api/blade-pda/common/material-search-new');
+const getWireExecuteList = createGetRequest('/api/blade-bip/WireExecute/list');
+const getExchangeRateList = createGetRequest('/api/blade-bip/dc-scm-exchange-rate/list');
+const getErpCustomerList = createGetRequest('/api/blade-erp/pro/erp-customer-list');
+const getErpProjectList = createGetRequest('/api/blade-erp/pro/project-name-list');
+const getErpSaleOrderList = createGetRequest('/api/blade-erp/pro/sale-order-list');
+const getErpMaterialMasterList = createGetRequest('/api/blade-erp/v-prd-mo-material/list');
 
 export default {
     processModel: {
@@ -65,7 +125,7 @@ export default {
         title: '采购申请单',
         placeholder: '请输入采购申请单',
         submitTitle: '采购申请单',
-        dialogGet: Api.scm.application.getList,
+        dialogGet: getScmPurchaseRequestList,
         column: [
             {
                 label: '组织',
@@ -103,7 +163,7 @@ export default {
         title: '供应商',
         placeholder: '请输入供应商',
         submitTitle: '供应商',
-        dialogGet: Api.scm.supplier.getList,
+        dialogGet: getScmSupplierList,
         column: [
             {
                 label: '供应商名称',
@@ -131,7 +191,7 @@ export default {
         title: '物料选择',
         placeholder: '请输入物料编码',
         submitTitle: '物料',
-        dialogGet: Api.qms.sn.listByMtoNo,
+        dialogGet: getSipOrderMaterialList,
         column: [
             {
                 label: '专案号',
@@ -160,7 +220,7 @@ export default {
         title: '物料选择',
         placeholder: '请输入物料名称查询选择',
         submitTitle: '物料',
-        dialogGet: Api.qms.sn.getMaterialList,
+        dialogGet: getSnMaterialSearchList,
         column: [
             {
                 label: '物料名称',
@@ -202,7 +262,7 @@ export default {
         title: '物料选择',
         placeholder: '请输入物料编码查询选择',
         submitTitle: '物料选择',
-        dialogGet: Api.pdp.erpSelect.materials,
+        dialogGet: getErpSelectMaterials,
         column: [
             {
                 label: '物料名称',
@@ -238,7 +298,7 @@ export default {
         title: '物料选择',
         placeholder: '请输入物料名称查询选择',
         submitTitle: '物料',
-        dialogGet: Api.scm.scmMaterial.getList,
+        dialogGet: getScmMaterialList,
         column: [
             {
                 label: '物料名称',
@@ -275,7 +335,7 @@ export default {
         title: '组织选择',
         placeholder: '请输入组织名称查询选择',
         submitTitle: '组织',
-        dialogGet: Api.pdp.deliverystartsubmit.list,
+        dialogGet: getDeliveredItemList,
         column: [
             {
                 label: '组织名称',
@@ -291,7 +351,7 @@ export default {
         title: 'SCM组织选择',
         placeholder: '请输入组织名称查询选择',
         submitTitle: 'SCM组织',
-        dialogGet: Api.scm.organization.getList,
+        dialogGet: getScmOrgList,
         column: [
             {
                 prop: 'orgName',
@@ -321,7 +381,7 @@ export default {
         title: '配置模板选择',
         placeholder: '请输入配置模板',
         submitTitle: '配置模板',
-        dialogGet: Api.pdp.projectSetting.list,
+        dialogGet: getProjectSettingList,
         column: [
             {
                 label: '配置名称',
@@ -348,7 +408,7 @@ export default {
         title: '机台名称',
         placeholder: '请输入机台名称',
         submitTitle: '机台名称',
-        dialogGet: Api.pdp.deliverystartsubmit.list,
+        dialogGet: getDeliveredItemList,
         column: [
             {
                 label: '机台名称',
@@ -364,7 +424,7 @@ export default {
         title: '可行性报告选择',
         placeholder: '请输入报告名称查询选择',
         submitTitle: '可行新报告',
-        dialogGet: Api.pdp.dcFea.list,
+        dialogGet: getDcFeaList,
         column: [
             {
                 label: '评估名称',
@@ -379,7 +439,7 @@ export default {
         title: '商机选择',
         placeholder: '请输入客户名称查询选择',
         submitTitle: '客户',
-        dialogGet: Api.crm.customer.getCustomerList,
+        dialogGet: getCustomerList,
         column: [
             {
                 label: '客户名称',
@@ -394,7 +454,7 @@ export default {
         title: 'CM厂商选择',
         placeholder: '请输入厂商名称查询选择',
         submitTitle: 'CM厂商',
-        dialogGet: Api.crm.customer.getCustomerList,
+        dialogGet: getCustomerList,
         column: [
             {
                 label: 'CM厂商名称',
@@ -414,7 +474,7 @@ export default {
         title: '人员选择',
         placeholder: '请输入人员姓名查询选择',
         submitTitle: '用户',
-        dialogGet: Api.system.user.getList,
+        dialogGet: getSystemUserList,
         column: [
             {
                 label: '姓名',
@@ -459,7 +519,7 @@ export default {
         title: '部门选择',
         placeholder: '请输入部门名称查询选择',
         submitTitle: '部门',
-        dialogGet: Api.system.dept.getList,
+        dialogGet: getSystemDeptList,
         column: [
             {
                 label: '部门名称',
@@ -474,7 +534,7 @@ export default {
         title: '客户联系人选择',
         placeholder: '请输入客户联系人姓名查询选择',
         submitTitle: '客户联系人',
-        dialogGet: Api.crm.customerContacts.list,
+        dialogGet: getCustomerContactsList,
         dialogRemove: Api.crm.customerContacts.delete,
         dialogCreate: Api.crm.customerContacts.submit,
         dialogEdit: Api.crm.customerContacts.submit,
@@ -504,7 +564,7 @@ export default {
         title: '代工厂选择',
         placeholder: '请输入代工厂名称查询选择',
         submitTitle: '代工厂',
-        dialogGet: Api.crm.foundry.list,
+        dialogGet: getFoundryList,
         dialogRemove: Api.crm.foundry.remove,
         dialogCreate: Api.crm.foundry.submit,
         dialogEdit: Api.crm.foundry.submit,
@@ -549,7 +609,7 @@ export default {
         title: '商机选择',
         placeholder: '请输入商机名称查询选择',
         submitTitle: '商机',
-        dialogGet: Api.crm.opps.getOppsList,
+        dialogGet: getOppsList,
         column: [
             {
                 label: '商机名称',
@@ -622,7 +682,7 @@ export default {
         title: '项目选择',
         placeholder: '请输入项目名称查询选择',
         submitTitle: '项目',
-        dialogGet: Api.pdp.project.list,
+        dialogGet: getProjectList,
         column: [
             {
                 label: '项目名称',
@@ -637,7 +697,7 @@ export default {
         title: '项目选择',
         placeholder: '请输入项目名称查询选择',
         submitTitle: '项目',
-        dialogGet: Api.pdp.project.findProjectDelivered,
+        dialogGet: getProjectDeliveredList,
         column: [
             {
                 label: '项目名称',
@@ -653,7 +713,7 @@ export default {
         title: '项目选择',
         placeholder: '请输入项目名称查询选择',
         submitTitle: '项目',
-        dialogGet: Api.pdp.mmrProjectConfig.list,
+        dialogGet: getMmrProjectConfigList,
         column: [
             {
                 label: '项目名称',
@@ -673,7 +733,7 @@ export default {
         title: '项目选择',
         placeholder: '请输入项目名称查询选择',
         submitTitle: '项目',
-        dialogGet: Api.pdp.project.findProjectVo, // Api.pdp.project.list,
+        dialogGet: getProjectVoList, // Api.pdp.project.list,
         column: [
             {
                 label: '项目名称',
@@ -711,7 +771,7 @@ export default {
         title: 'ERP人员选择',
         placeholder: '请输入ERP人员查询选择',
         submitTitle: 'ERP人员',
-        dialogGet: Api.wms.erpStock.keeperList,
+        dialogGet: getWarehouseKeeperList,
         column: [
             {
                 label: '用户工号',
@@ -731,7 +791,7 @@ export default {
         title: 'ERP人员选择',
         placeholder: '请输入ERP人员查询选择',
         submitTitle: 'ERP人员',
-        dialogGet: Api.wms.erpStock.keeperList,
+        dialogGet: getWarehouseKeeperList,
         column: [
             {
                 label: '用户工号',
@@ -751,7 +811,7 @@ export default {
         title: '驻地选择',
         placeholder: '请输入驻地名称查询选择',
         submitTitle: '驻地',
-        dialogGet: Api.pdp.mmrStationConfig.list,
+        dialogGet: getMmrStationConfigList,
         column: [
             {
                 label: '驻地名称',
@@ -771,7 +831,7 @@ export default {
         title: '计划选择',
         placeholder: '请输入计划名称查询选择',
         submitTitle: '计划',
-        dialogGet: Api.pdp.planItem.getPlanitemList,
+        dialogGet: getPlanItemList,
         column: [
             {
                 label: '计划',
@@ -786,7 +846,7 @@ export default {
         title: '客户需求选择',
         placeholder: '请输入客户需求名称查询选择',
         submitTitle: '客户需求',
-        dialogGet: Api.crm.customerRlist.list,
+        dialogGet: getCustomerRlist,
         column: [
             {
                 label: '需求编码',
@@ -817,7 +877,7 @@ export default {
         title: '专案选择',
         placeholder: '请输入专案号查询选择',
         submitTitle: '专案',
-        dialogGet: Api.pdp.deliverystartsubmit.list,
+        dialogGet: getDeliveredItemList,
         column: [
             {
                 label: '专案号',
@@ -840,7 +900,7 @@ export default {
         title: '采购订单选择',
         placeholder: '请输入订单编号查询选择',
         submitTitle: '采购订单',
-        dialogGet: Api.scm.purchaseOrder.getList,
+        dialogGet: getScmPurchaseOrderList,
         column: [
             {
                 label: '订单编号',
@@ -869,7 +929,7 @@ export default {
         title: '供应商库存单明细选择',
         placeholder: '请输入商品名称查询选择',
         submitTitle: '库存列表',
-        dialogGet: Api.wms.warehouse.supperList,
+        dialogGet: getWarehouseSupperList,
         column: [
             {
                 prop: 'productName',
@@ -905,7 +965,7 @@ export default {
         title: '仓库选择',
         placeholder: '请输入仓库名称查询选择',
         submitTitle: '仓库',
-        dialogGet: Api.wms.warehouse.list,
+        dialogGet: getWarehouseList,
         column: [
             {
                 label: '仓库编号',
@@ -951,7 +1011,7 @@ export default {
         title: '仓库选择',
         placeholder: '请输入仓库名称查询选择',
         submitTitle: '仓库',
-        dialogGet: Api.wms.warehouse.list,
+        dialogGet: getWarehouseList,
         column: [
             {
                 label: '仓库编号',
@@ -994,7 +1054,7 @@ export default {
         title: '库位选择',
         placeholder: '请输入库位名称查询选择',
         submitTitle: '库位',
-        dialogGet: Api.wms.warehouseLocation.list,
+        dialogGet: getWarehouseLocationList,
         column: [
             {
                 label: '仓库名称',
@@ -1034,7 +1094,7 @@ export default {
         title: '库存选择',
         placeholder: '请输入物料名称查询选择',
         submitTitle: '库存',
-        dialogGet: Api.wms.common.list,
+        dialogGet: getWmsCommonList,
         column: [
             {
                 label: '物料名称',
@@ -1109,7 +1169,7 @@ export default {
         title: '货主选择',
         placeholder: '请输入货主名称查询选择',
         submitTitle: '货主',
-        dialogGet: Api.wms.cargoOwner.list,
+        dialogGet: getCargoOwnerList,
         column: [
             {
                 label: '货主名称',
@@ -1146,7 +1206,7 @@ export default {
         title: '现场计划单选择',
         placeholder: '请输入现场计划单查询选择',
         submitTitle: '现场计划单',
-        dialogGet: Api.pdp.mmrPlanOrder.list,
+        dialogGet: getMmrPlanOrderList,
         column: [
             {
                 label: '计划单号',
@@ -1187,7 +1247,7 @@ export default {
         title: '厂区选择',
         placeholder: '请输入厂区查询选择',
         submitTitle: '厂区',
-        dialogGet: Api.crm.crmCustomerArea.list,
+        dialogGet: getCrmCustomerAreaList,
         dialogRemove: Api.crm.crmCustomerArea.remove,
         dialogCreate: Api.crm.crmCustomerArea.submit,
         dialogEdit: Api.crm.crmCustomerArea.submit,
@@ -1240,7 +1300,7 @@ export default {
         title: '厂区选择',
         placeholder: '请输入厂区查询选择',
         submitTitle: '厂区',
-        dialogGet: Api.crm.crmCustomerArea.list,
+        dialogGet: getCrmCustomerAreaList,
         dialogRemove: Api.crm.crmCustomerArea.remove,
         dialogCreate: Api.crm.crmCustomerArea.submit,
         dialogEdit: Api.crm.crmCustomerArea.submit,
@@ -1270,7 +1330,7 @@ export default {
         title: '成品专案选择',
         placeholder: '请输入专案号查询选择',
         submitTitle: '专案',
-        dialogGet: Api.erp.feign.list,
+        dialogGet: getErpFeignList,
         column: [
             {
                 label: '专案号',
@@ -1301,7 +1361,7 @@ export default {
         title: 'BOM选择',
         placeholder: '请输入BOM编码查询选择',
         submitTitle: 'BOM',
-        dialogGet: Api.mps.wireBom.list,
+        dialogGet: getWireBomList,
         column: [
             {
                 prop: 'bomNo',
@@ -1339,7 +1399,7 @@ export default {
         title: '物料选择',
         placeholder: '请输入物料名称查询选择',
         submitTitle: '物料',
-        dialogGet: Api.common.getMaterialSearchV2,
+        dialogGet: getMaterialSearchV2,
         search: {
             config: {
                 fuseorgid: {
@@ -1402,7 +1462,7 @@ export default {
         title: '线材执行单选择',
         placeholder: '请输入线材执行单号查询选择',
         submitTitle: '线材执行单',
-        dialogGet: Api.mps.wireExecute.list,
+        dialogGet: getWireExecuteList,
         column: [
             {
                 prop: 'auditStatus',
@@ -1462,7 +1522,7 @@ export default {
         title: '汇率选择',
         placeholder: '请输入币种查询选择',
         submitTitle: '汇率',
-        dialogGet: Api.scm.exchangeRate.list,
+        dialogGet: getExchangeRateList,
         column: [
             {
                 prop: 'currency',
@@ -1488,7 +1548,7 @@ export default {
         title: 'erp客户选择',
         placeholder: '请输入币种查询选择',
         submitTitle: '客户',
-        dialogGet: Api.erp.pro.erpCustomer,
+        dialogGet: getErpCustomerList,
         column: [
             {
                 prop: 'FOrgId',
@@ -1522,7 +1582,7 @@ export default {
         title: '项目选择',
         placeholder: '请输入项目名称查询选择',
         submitTitle: '项目',
-        dialogGet: Api.erp.pro.erpProject,
+        dialogGet: getErpProjectList,
         column: [
             {
                 prop: 'fName',
@@ -1550,7 +1610,7 @@ export default {
         title: '销售订单选择',
         placeholder: '请输入销售订单查询选择',
         submitTitle: '销售订单',
-        dialogGet: Api.erp.pro.erpSaleOrder,
+        dialogGet: getErpSaleOrderList,
         column: [
             {
                 prop: 'materialName',
@@ -1586,7 +1646,7 @@ export default {
         defaultLabelName: '物料名称',
         title: '专案物料选择',
         placeholder: '专案物料查询选择',
-        dialogGet: Api.erp.material.list,
+        dialogGet: getErpMaterialMasterList,
         column: [
             {
                 label: '计划跟踪号',
