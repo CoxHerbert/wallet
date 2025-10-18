@@ -1,7 +1,7 @@
 <template>
-	<view :class="{ 'wf-flex-end': flexEnd }">
-		<view class="wf-popup-list" :class="{ 'wf-popup-show': show,'wf-z_index':show && position!='relative' }" :style="{ width: width, backgroundColor: backgroundColor, borderRadius: radius, color: color, position: position, left: left, right: right, bottom: bottom, top: top,transform:`translate(${translateX},${translateY})` }">
-			<view class="wf-triangle" :style="{
+	<div :class="{ 'wf-flex-end': flexEnd }">
+		<div class="wf-popup-list" :class="{ 'wf-popup-show': show,'wf-z_index':show && position!='relative' }" :style="{ width: width, backgroundColor: backgroundColor, borderRadius: radius, color: color, position: position, left: left, right: right, bottom: bottom, top: top,transform:`translate(${translateX},${translateY})` }">
+			<div class="wf-triangle" :style="{
 					borderWidth: borderWidth,
 					borderColor: `transparent transparent ${backgroundColor} transparent`,
 					left: triangleLeft,
@@ -9,8 +9,8 @@
 					top: triangleTop,
 					bottom: triangleBottom
 				}"
-			 v-if="direction == 'top'"></view>
-			<view class="wf-triangle" :style="{
+			 v-if="direction == 'top'"></div>
+			<div class="wf-triangle" :style="{
 					borderWidth: borderWidth,
 					borderColor: `${backgroundColor}  transparent transparent transparent`,
 					left: triangleLeft,
@@ -18,8 +18,8 @@
 					top: triangleTop,
 					bottom: triangleBottom
 				}"
-			 v-if="direction == 'bottom'"></view>
-			<view class="wf-triangle" :style="{
+			 v-if="direction == 'bottom'"></div>
+			<div class="wf-triangle" :style="{
 					borderWidth: borderWidth,
 					borderColor: `transparent  ${backgroundColor} transparent transparent`,
 					left: triangleLeft,
@@ -27,8 +27,8 @@
 					top: triangleTop,
 					bottom: triangleBottom
 				}"
-			 v-if="direction == 'left'"></view>
-			<view class="wf-triangle" :style="{
+			 v-if="direction == 'left'"></div>
+			<div class="wf-triangle" :style="{
 					borderWidth: borderWidth,
 					borderColor: `transparent transparent  transparent ${backgroundColor}`,
 					left: triangleLeft,
@@ -36,12 +36,12 @@
 					top: triangleTop,
 					bottom: triangleBottom
 				}"
-			 v-if="direction == 'right'"></view>
+			 v-if="direction == 'right'"></div>
 			<slot />
-		</view>
-		<view @touchmove.stop.prevent="stop" class="wf-popup-mask" :class="{ 'wf-popup-show': show }" :style="{ backgroundColor: maskBgColor }"
-		 v-if="mask" @tap="handleClose"></view>
-	</view>
+		</div>
+		<div @touchmove.stop.prevent="stop" class="wf-popup-mask" :class="{ 'wf-popup-show': show }" :style="{ backgroundColor: maskBgColor }"
+		 v-if="mask" @click="handleClose"></div>
+	</div>
 </template>
 <script>
 	export default {

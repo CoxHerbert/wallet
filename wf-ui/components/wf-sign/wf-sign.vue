@@ -1,11 +1,11 @@
 <template>
-	<view class="wf-sign">
-		<image
-			v-if="text"
-			:src="text"
-			style="width: 700rpx; height: 350rpx"
-			@click="handlePreview"
-		></image>
+        <div class="wf-sign">
+                <img
+                        v-if="text"
+                        :src="text"
+                        style="width: 700rpx; height: 350rpx"
+                        @click="handlePreview"
+                />
 		<button
 			v-if="!disabled"
 			class="wf-sign__button"
@@ -16,11 +16,11 @@
 		>
 			签名
 		</button>
-		<signature-pad
-			v-if="!disabled"
-			ref="signature"
-		></signature-pad>
-	</view>
+                <signature-pad
+                        v-if="!disabled"
+                        ref="signature"
+                ></signature-pad>
+        </div>
 </template>
 
 <script>
@@ -79,9 +79,7 @@ export default {
 		},
 		handlePreview() {
 			if (!this.text) return
-			uni.previewImage({
-				urls: [this.text]
-			})
+                        window.open(this.text, '_blank')
 		},
 		httpUpload(config) {
 			return new Promise((resolve, reject) => {
@@ -89,11 +87,7 @@ export default {
 					let message = '未配置上传地址，保存为base64'
 					const tag = sessionStorage.getItem(this.signId)
 					if (!tag) {
-						uni.showToast({
-							title: message,
-							icon: 'none',
-							position: 'bottom'
-						})
+                                                window.alert(message)
 						sessionStorage.setItem(this.signId, 1)
 					}
 					reject()

@@ -1,35 +1,37 @@
 <template>
-    <view class="wf-table-select">
+    <div class="wf-table-select">
         <div class="wf-table-select__field" @click="handleClick">
-            <u-field
+            <van-field
                 v-model="input"
                 :label-width="0"
+                :border="false"
                 right-icon="search"
                 :placeholder="getPlaceholder(column, column.type)"
-            ></u-field>
+                readonly
+            ></van-field>
         </div>
 
-        <u-popup
-            v-model="show"
-            mode="bottom"
-            height="90%"
-            border-radius="14"
-            :mask-close-able="false"
+        <van-popup
+            v-model:show="show"
+            position="bottom"
+            :style="{ height: '90%' }"
+            round
+            :close-on-click-overlay="false"
             safe-area-inset-bottom
         >
-            <view class="wf-table-select__search">
-                <u-search
+            <div class="wf-table-select__search">
+                <van-search
                     :placeholder="`请输入${singleSearch.label}`"
                     v-model="searchValue"
                     shape="square"
-                    :clearabled="true"
+                    :clearable="true"
                     :show-action="false"
-                    bg-color="#f6f6f6"
+                    background="#f6f6f6"
                     @search="tableLoad(true)"
                     @clear="tableLoad(true)"
-                ></u-search>
-            </view>
-            <scroll-view scroll-y="true" class="wf-table-select__content">
+                ></van-search>
+            </div>
+            <div class="wf-table-select__content" style="overflow-y: auto;">
                 <template v-if="multiple">
                     <checkbox-group @change="handleRowChange">
                         <template v-for="(item, index) in data">
@@ -47,10 +49,10 @@
                                 @row-expand="handleRowExpand"
                             ></item>
                             <template v-if="item[childrenKey] || item[hasChildrenKey]">
-                                <view v-show="arrowKeys.includes(item[valueKey])">
-                                    <view style="text-align: center">
-                                        <u-icon name="arrow-downward"></u-icon>
-                                    </view>
+                                <div v-show="arrowKeys.includes(item[valueKey])">
+                                    <div style="text-align: center">
+                                        <van-icon name="arrow-down" />
+                                    </div>
                                     <template v-for="(cItem, cIndex) in item[childrenKey]">
                                         <item
                                             :key="cIndex"
@@ -66,7 +68,7 @@
                                             @row-expand="handleRowExpand"
                                         ></item>
                                     </template>
-                                </view>
+                                </div>
                             </template>
                         </template>
                     </checkbox-group>
@@ -88,10 +90,10 @@
                                 @row-expand="handleRowExpand"
                             ></item>
                             <template v-if="item[childrenKey] || item[hasChildrenKey]">
-                                <view v-show="arrowKeys.includes(item[valueKey])">
-                                    <view style="text-align: center">
-                                        <u-icon name="arrow-downward"></u-icon>
-                                    </view>
+                                <div v-show="arrowKeys.includes(item[valueKey])">
+                                    <div style="text-align: center">
+                                        <van-icon name="arrow-down" />
+                                    </div>
                                     <template v-for="(cItem, cIndex) in item[childrenKey]">
                                         <item
                                             :key="cIndex"
@@ -107,15 +109,30 @@
                                             @row-expand="handleRowExpand"
                                         ></item>
                                     </template>
-                                </view>
+                                </div>
                             </template>
                         </template>
                     </radio-group>
                 </template>
-                <u-loadmore :status="loadStatus" @loadmore="tableLoad(false)" margin-bottom="30" v-if="needPage" />
-            </scroll-view>
-            <view class="wf-table-select__action">
-                <view>
+                <div class="wf-table-select__loadmore" v-if="needPage">
+                    <van-button
+                        v-if="loadStatus === 'loadmore'"
+                        type="primary"
+                        plain
+                        block
+                        size="small"
+                        @click="tableLoad(false)"
+                    >
+                        加载更多
+                    </van-button>
+                    <div v-else-if="loadStatus === 'loading'" class="wf-table-select__loadmore-loading">
+                        <van-loading size="24px" />
+                    </div>
+                    <span v-else class="wf-table-select__loadmore-text">没有更多了</span>
+                </div>
+            </div>
+            <div class="wf-table-select__action">
+                <div>
                     <checkbox-group @change="handleAllCheck" v-if="multiple">
                         <label>
                             <checkbox
@@ -126,21 +143,22 @@
                             全选({{ Array.from(selectionList).length || 0 }})
                         </label>
                     </checkbox-group>
-                </view>
+                </div>
 
-                <view class="wf-table-select__action--right">
+                <div class="wf-table-select__action--right">
                     <button type="warn" size="mini" style="margin-right: 20rpx" @click="close">关闭</button>
                     <button type="warn" size="mini" style="margin-right: 20rpx" @click="handelClear">清空</button>
                     <button type="primary" size="mini" @click="handleSubmit">确定</button>
-                </view>
-            </view>
-        </u-popup>
-    </view>
+                </div>
+            </div>
+        </van-popup>
+    </div>
 </template>
 
 <script>
 import Props from '../../mixins/props.js';
 import { getAsVal } from '../../util/index.js';
+import { showToast } from '../../util/uniCompat.js';
 import Item from './item.vue';
 
 export default {
@@ -472,7 +490,7 @@ export default {
                     this.$http.request(option).then((res) => {
                         const response = getAsVal(res, this.resKey);
                         if (!response) {
-                            uni.showToast({
+                            showToast({
                                 title: '未查询到数据或者返回层级配置错误',
                             });
                             return;
@@ -495,7 +513,7 @@ export default {
     &__field {
         position: relative;
 
-        .u-field {
+        .van-field {
             padding: 20rpx 0;
         }
 
@@ -585,6 +603,21 @@ export default {
         &--right {
             display: flex;
             align-items: center;
+        }
+    }
+
+    &__loadmore {
+        padding: 20rpx 30rpx 40rpx;
+        text-align: center;
+
+        &-loading {
+            display: flex;
+            justify-content: center;
+        }
+
+        &-text {
+            color: #999;
+            font-size: 26rpx;
         }
     }
 }

@@ -1,5 +1,5 @@
 <template>
-        <view class="wf-select">
+        <div class="wf-select">
                 <van-field
                         v-model="textLabel"
                         is-link
@@ -18,7 +18,7 @@
                                 @cancel="show = false"
                         />
                 </van-popup>
-        </view>
+        </div>
 </template>
 
 <script>

@@ -1,7 +1,7 @@
 <template>
-	<view class="wf-upload">
+	<div class="wf-upload">
 		<upload :file-list="fileList" :limit="limit" :disabled="disabled" @remove="onRemove" @choose="onChoose"></upload>
-	</view>
+	</div>
 </template>
 
 <script>
@@ -65,25 +65,24 @@ export default {
 				this.fileList = fileList
 			}
 		},
-		onChoose(list) {
-			list.forEach(file => {
-				const { path, tempFilePath } = file
-				const params = {
-					// #ifdef MP-ALIPAY
-					fileType: 'image/video/audio', // 仅支付宝小程序，且必填。
-					// #endif
-					filePath: path || tempFilePath,
-					name: this.fileName,
-					header: this.header,
-					formData: this.formData
-				}
-				this.$http.upload(this.action, params).then(res => {
-					const data = getAsVal(res, this.propsHttp.res)
-					const url = getAsVal(data, this.propsHttp.url)
-					const name = getAsVal(data, this.propsHttp.name)
+                onChoose(list) {
+                        list.forEach(file => {
+                                const { path, tempFilePath, file: rawFile, name } = file
+                                const filePath = path || tempFilePath
+                                const params = {
+                                        file: rawFile,
+                                        filePath,
+                                        name: this.fileName,
+                                        header: this.header,
+                                        formData: this.formData
+                                }
+                                this.$http.upload(this.action, params).then(res => {
+                                        const data = getAsVal(res, this.propsHttp.res)
+                                        const url = getAsVal(data, this.propsHttp.url)
+                                        const uploadName = getAsVal(data, this.propsHttp.name) || name
                                         this.fileList = [
                                                 ...this.fileList,
-                                                { url, name, progress: 100 }
+                                                { url, name: uploadName, progress: 100 }
                                         ]
                                         this.onChange()
                                 })

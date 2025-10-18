@@ -1,11 +1,11 @@
 <template>
-        <view class="wf-radio">
+        <div class="wf-radio">
                 <van-radio-group v-model="text" :disabled="disabled" @click="handleClick">
                         <van-radio v-for="(item, index) in dic" :key="index" :name="item[valueKey]">
                                 {{ item[labelKey] }}
                         </van-radio>
                 </van-radio-group>
-        </view>
+        </div>
 </template>
 
 <script>
